@@ -1,0 +1,1687 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Personal academic paper manager with AI, knowledge graph, and full-text search">
+      
+      
+        <meta name="author" content="PaperManager Contributors">
+      
+      
+        <link rel="canonical" href="https://niklasabraham.github.io/PaperManager/style-guide/">
+      
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>PaperManager — UI Style Guide - PaperManager</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#papermanager-ui-style-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="PaperManager" class="md-header__button md-logo" aria-label="PaperManager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PaperManager
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PaperManager — UI Style Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/NiklasAbraham/PaperManager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    NiklasAbraham/PaperManager
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../user-guide/getting-started/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../technical/architecture/" class="md-tabs__link">
+          
+  
+  
+  Technical Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../decisions/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Decisions Log
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="PaperManager" class="md-nav__button md-logo" aria-label="PaperManager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PaperManager
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/NiklasAbraham/PaperManager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    NiklasAbraham/PaperManager
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ingesting Papers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Library
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/paper-detail/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Paper Detail
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/knowledge-features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Knowledge Features
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/mcp-server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MCP Server (Claude)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../self_hosting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hosting Your Own
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Technical Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Technical Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../technical/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../technical/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../technical/frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Frontend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../technical/data-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../technical/ai-pipelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AI Pipelines
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../technical/api-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Decisions Log
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-design-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Design Tokens
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Design Tokens">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#surfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      Surfaces
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#text" class="md-nav__link">
+    <span class="md-ellipsis">
+      Text
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#borders" class="md-nav__link">
+    <span class="md-ellipsis">
+      Borders
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accent-violet-brand" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accent (violet brand)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#semantic-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      Semantic feedback
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-typography" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Typography
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-buttons" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Buttons
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Buttons">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#primary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Primary
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secondary-outline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Secondary (outline)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ghost-skip-cancel" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ghost (skip / cancel)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#destructive" class="md-nav__link">
+    <span class="md-ellipsis">
+      Destructive
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#icon-button" class="md-nav__link">
+    <span class="md-ellipsis">
+      Icon button
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-inputs-form-elements" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Inputs &amp; Form Elements
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Inputs &amp; Form Elements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#text-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      Text input
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#textarea" class="md-nav__link">
+    <span class="md-ellipsis">
+      Textarea
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#select" class="md-nav__link">
+    <span class="md-ellipsis">
+      Select
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#field-wrapper" class="md-nav__link">
+    <span class="md-ellipsis">
+      Field wrapper
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-badges-pills" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Badges &amp; Pills
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Badges &amp; Pills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tag-toggleable" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tag (toggleable)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topic-pill" class="md-nav__link">
+    <span class="md-ellipsis">
+      Topic pill
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#person-author-pill" class="md-nav__link">
+    <span class="md-ellipsis">
+      Person / author pill
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-status-badge" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reading status badge
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata-source-badge" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metadata source badge
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-cards" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Cards
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Cards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#paper-card" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paper card
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#panel-section-box" class="md-nav__link">
+    <span class="md-ellipsis">
+      Panel / section box
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tinted-section-inside-a-cardmodal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tinted section (inside a card/modal)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-modals" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Modals
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-inline-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Inline Feedback
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Inline Feedback">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#success" class="md-nav__link">
+    <span class="md-ellipsis">
+      Success
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error / validation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#warning-banner" class="md-nav__link">
+    <span class="md-ellipsis">
+      Warning banner
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#duplicate-info-banner" class="md-nav__link">
+    <span class="md-ellipsis">
+      Duplicate / info banner
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loading-pulse" class="md-nav__link">
+    <span class="md-ellipsis">
+      Loading pulse
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-spacing-sizing-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Spacing &amp; Sizing Conventions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-do-dont" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Do / Don't
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="papermanager-ui-style-guide">PaperManager — UI Style Guide<a class="headerlink" href="#papermanager-ui-style-guide" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Single source of truth for all frontend styling decisions.</strong>
+Tokens are defined in <a href="../frontend/src/index.css"><code>frontend/src/index.css</code></a> via Tailwind v4 <code>@theme</code>.
+When in doubt, use a semantic token instead of a raw Tailwind color.</p>
+</blockquote>
+<hr />
+<h2 id="1-design-tokens">1. Design Tokens<a class="headerlink" href="#1-design-tokens" title="Permanent link">&para;</a></h2>
+<p>These are the only colors you should use for structure and text. They map to fixed Tailwind values and support future theming (e.g. dark mode) by changing one place.</p>
+<h3 id="surfaces">Surfaces<a class="headerlink" href="#surfaces" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Class</th>
+<th>Value</th>
+<th>Use for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>raised</td>
+<td><code>bg-raised</code></td>
+<td><code>#ffffff</code> white</td>
+<td>Cards, modals, dropdowns</td>
+</tr>
+<tr>
+<td>base</td>
+<td><code>bg-base</code></td>
+<td><code>#f9fafb</code> gray-50</td>
+<td>Page background</td>
+</tr>
+</tbody>
+</table>
+<h3 id="text">Text<a class="headerlink" href="#text" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Class</th>
+<th>Value</th>
+<th>Use for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ink</td>
+<td><code>text-ink</code></td>
+<td><code>#111827</code> gray-900</td>
+<td>Headings, primary labels</td>
+</tr>
+<tr>
+<td>ink-2</td>
+<td><code>text-ink-2</code></td>
+<td><code>#4b5563</code> gray-600</td>
+<td>Body text, secondary labels</td>
+</tr>
+<tr>
+<td>ink-3</td>
+<td><code>text-ink-3</code></td>
+<td><code>#9ca3af</code> gray-400</td>
+<td>Muted text, placeholders, hints</td>
+</tr>
+</tbody>
+</table>
+<h3 id="borders">Borders<a class="headerlink" href="#borders" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Class</th>
+<th>Value</th>
+<th>Use for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>line</td>
+<td><code>border-line</code></td>
+<td><code>#e5e7eb</code> gray-200</td>
+<td>Standard borders on inputs, cards</td>
+</tr>
+<tr>
+<td>line-s</td>
+<td><code>border-line-s</code></td>
+<td><code>#f3f4f6</code> gray-100</td>
+<td>Subtle dividers inside panels</td>
+</tr>
+</tbody>
+</table>
+<h3 id="accent-violet-brand">Accent (violet brand)<a class="headerlink" href="#accent-violet-brand" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Class</th>
+<th>Value</th>
+<th>Use for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>accent</td>
+<td><code>bg-accent</code> / <code>text-accent</code> / <code>border-accent</code></td>
+<td><code>#7c3aed</code> violet-600</td>
+<td>Primary buttons, active states, links</td>
+</tr>
+<tr>
+<td>accent-lo</td>
+<td><code>bg-accent-lo</code></td>
+<td><code>#f5f3ff</code> violet-50</td>
+<td>Selected row backgrounds, tinted surfaces</td>
+</tr>
+<tr>
+<td>accent-border</td>
+<td><code>border-accent-border</code></td>
+<td><code>#ddd6fe</code> violet-200</td>
+<td>Subtle violet borders on focus/hover</td>
+</tr>
+</tbody>
+</table>
+<h3 id="semantic-feedback">Semantic feedback<a class="headerlink" href="#semantic-feedback" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Class</th>
+<th>Value</th>
+<th>Use for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>coral</td>
+<td><code>text-coral</code></td>
+<td><code>#dc2626</code> red-600</td>
+<td>Error messages, destructive text</td>
+</tr>
+<tr>
+<td>amber</td>
+<td><code>text-amber</code></td>
+<td><code>#d97706</code> amber-600</td>
+<td>Warning text</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-typography">2. Typography<a class="headerlink" href="#2-typography" title="Permanent link">&para;</a></h2>
+<p>Never hard-code <code>text-gray-*</code> for text. Use the ink scale instead.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>text-[10px] font-semibold text-accent uppercase tracking-wide   ← section eyebrow / badge label
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>text-sm font-semibold text-ink                                  ← modal / card heading
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>text-sm text-ink-2                                              ← body copy
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>text-xs font-medium text-ink-3 uppercase tracking-wide          ← sub-section label
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>text-xs text-ink-3                                              ← helper text, subtitles, hints
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>text-[11px] text-ink-3                                          ← very small metadata
+</code></pre></div>
+<hr />
+<h2 id="3-buttons">3. Buttons<a class="headerlink" href="#3-buttons" title="Permanent link">&para;</a></h2>
+<h3 id="primary">Primary<a class="headerlink" href="#primary" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>className=&quot;px-4 py-2 text-sm bg-accent text-white rounded-lg hover:bg-violet-700 disabled:opacity-50&quot;
+</code></pre></div>
+<h3 id="secondary-outline">Secondary (outline)<a class="headerlink" href="#secondary-outline" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>className=&quot;px-4 py-2 text-sm border border-line text-ink-2 rounded-lg hover:border-accent-border hover:text-accent&quot;
+</code></pre></div>
+<h3 id="ghost-skip-cancel">Ghost (skip / cancel)<a class="headerlink" href="#ghost-skip-cancel" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>className=&quot;px-4 py-2 text-sm text-ink-3 hover:text-ink&quot;
+</code></pre></div>
+<h3 id="destructive">Destructive<a class="headerlink" href="#destructive" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>// Default state
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>className=&quot;border border-line text-ink-3 hover:text-coral hover:border-red-300 ...&quot;
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>// Confirmed (after first click)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>className=&quot;bg-red-600 border-red-600 text-white ...&quot;
+</code></pre></div>
+<h3 id="icon-button">Icon button<a class="headerlink" href="#icon-button" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>className=&quot;p-1.5 rounded border border-line text-ink-3 hover:text-accent hover:border-accent-border transition-colors&quot;
+</code></pre></div>
+<hr />
+<h2 id="4-inputs-form-elements">4. Inputs &amp; Form Elements<a class="headerlink" href="#4-inputs-form-elements" title="Permanent link">&para;</a></h2>
+<h3 id="text-input">Text input<a class="headerlink" href="#text-input" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>className=&quot;w-full border border-line rounded px-3 py-1.5 text-sm
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>           focus:outline-none focus:ring-2 focus:ring-violet-300&quot;
+</code></pre></div>
+<h3 id="textarea">Textarea<a class="headerlink" href="#textarea" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>className=&quot;w-full border border-line rounded px-3 py-1.5 text-sm
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>           focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none&quot;
+</code></pre></div>
+<h3 id="select">Select<a class="headerlink" href="#select" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>className=&quot;border border-line rounded px-2 py-1.5 text-sm bg-raised text-ink-2
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>           focus:outline-none focus:ring-2 focus:ring-violet-300&quot;
+</code></pre></div>
+<h3 id="field-wrapper">Field wrapper<a class="headerlink" href="#field-wrapper" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>function Field({ label, children }: { label: string; children: React.ReactNode }) {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  return (
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    &lt;div&gt;
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>      &lt;label className=&quot;block text-xs font-medium text-ink-3 mb-1&quot;&gt;{label}&lt;/label&gt;
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>      {children}
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    &lt;/div&gt;
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>  );
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>}
+</code></pre></div>
+<hr />
+<h2 id="5-badges-pills">5. Badges &amp; Pills<a class="headerlink" href="#5-badges-pills" title="Permanent link">&para;</a></h2>
+<h3 id="tag-toggleable">Tag (toggleable)<a class="headerlink" href="#tag-toggleable" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>// Active / applied
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>className=&quot;px-3 py-1 rounded-full text-xs font-medium border bg-accent text-white border-accent&quot;
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>// Inactive
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>className=&quot;px-3 py-1 rounded-full text-xs font-medium border
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>           bg-raised text-ink-2 border-line hover:border-accent-border hover:text-accent&quot;
+</code></pre></div>
+<h3 id="topic-pill">Topic pill<a class="headerlink" href="#topic-pill" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>className=&quot;px-2.5 py-1 text-xs bg-blue-50 text-blue-700 border border-blue-100 rounded-full&quot;
+</code></pre></div>
+<h3 id="person-author-pill">Person / author pill<a class="headerlink" href="#person-author-pill" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>className=&quot;px-2.5 py-1 text-xs bg-accent-lo text-accent border border-accent-border rounded-full&quot;
+</code></pre></div>
+<h3 id="reading-status-badge">Reading status badge<a class="headerlink" href="#reading-status-badge" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>unread:  bg-gray-100 text-gray-500
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>reading: bg-blue-100 text-blue-600
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>read:    bg-green-100 text-green-600
+</code></pre></div>
+<h3 id="metadata-source-badge">Metadata source badge<a class="headerlink" href="#metadata-source-badge" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>semantic_scholar / crossref: bg-green-100 text-green-700
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>llm:                         bg-yellow-100 text-yellow-700
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>heuristic:                   bg-red-100 text-red-700
+</code></pre></div>
+<hr />
+<h2 id="6-cards">6. Cards<a class="headerlink" href="#6-cards" title="Permanent link">&para;</a></h2>
+<h3 id="paper-card">Paper card<a class="headerlink" href="#paper-card" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>className=&quot;bg-raised border border-line rounded-lg p-4 cursor-pointer
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>           hover:shadow-md hover:border-accent-border transition-all&quot;
+</code></pre></div>
+<h3 id="panel-section-box">Panel / section box<a class="headerlink" href="#panel-section-box" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>className=&quot;bg-raised border border-line rounded-xl p-4&quot;
+</code></pre></div>
+<h3 id="tinted-section-inside-a-cardmodal">Tinted section (inside a card/modal)<a class="headerlink" href="#tinted-section-inside-a-cardmodal" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>className=&quot;bg-base rounded-lg border border-line p-3&quot;
+</code></pre></div>
+<hr />
+<h2 id="7-modals">7. Modals<a class="headerlink" href="#7-modals" title="Permanent link">&para;</a></h2>
+<p>All modals share the same structural shell:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>{/* Backdrop */}
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>&lt;div className=&quot;fixed inset-0 z-50 flex items-center justify-center bg-black/40&quot;&gt;
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>  {/* Panel */}
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>  &lt;div className=&quot;bg-raised rounded-xl shadow-xl w-full max-w-lg mx-4 overflow-hidden&quot;&gt;
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    {/* Header */}
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>    &lt;div className=&quot;px-6 py-4 border-b border-line-s&quot;&gt;
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>      &lt;div className=&quot;flex items-center justify-between mb-0.5&quot;&gt;
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>        &lt;h2 className=&quot;font-semibold text-ink&quot;&gt;{title}&lt;/h2&gt;
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>        &lt;button onClick={onClose} className=&quot;text-ink-3 hover:text-ink-2 text-lg leading-none&quot;&gt;×&lt;/button&gt;
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>      &lt;/div&gt;
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>      &lt;p className=&quot;text-xs text-ink-3&quot;&gt;{subtitle}&lt;/p&gt;
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>    &lt;/div&gt;
+<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>
+<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>    {/* Content */}
+<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a>    &lt;div className=&quot;px-6 py-4 space-y-3&quot;&gt;
+<a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a>      ...
+<a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a>    &lt;/div&gt;
+<a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a>
+<a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a>    {/* Footer */}
+<a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a>    &lt;div className=&quot;px-6 py-4 border-t border-line-s flex justify-end gap-2&quot;&gt;
+<a id="__codelineno-18-23" name="__codelineno-18-23" href="#__codelineno-18-23"></a>      &lt;button className=&quot;px-4 py-2 text-sm text-ink-3 hover:text-ink&quot;&gt;Cancel&lt;/button&gt;
+<a id="__codelineno-18-24" name="__codelineno-18-24" href="#__codelineno-18-24"></a>      &lt;button className=&quot;px-4 py-2 text-sm bg-accent text-white rounded-lg hover:bg-violet-700&quot;&gt;Save&lt;/button&gt;
+<a id="__codelineno-18-25" name="__codelineno-18-25" href="#__codelineno-18-25"></a>    &lt;/div&gt;
+<a id="__codelineno-18-26" name="__codelineno-18-26" href="#__codelineno-18-26"></a>
+<a id="__codelineno-18-27" name="__codelineno-18-27" href="#__codelineno-18-27"></a>  &lt;/div&gt;
+<a id="__codelineno-18-28" name="__codelineno-18-28" href="#__codelineno-18-28"></a>&lt;/div&gt;
+</code></pre></div>
+<p><strong>Multi-step modals</strong> add a <code>StepDots</code> component above the subtitle:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>function StepDots({ current, total }: { current: number; total: number }) {
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>  return (
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    &lt;div className=&quot;flex gap-1 items-center&quot;&gt;
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>      {Array.from({ length: total }).map((_, i) =&gt; (
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>        &lt;span key={i} className={`w-1.5 h-1.5 rounded-full transition-colors ${
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>          i === current ? &quot;bg-accent&quot; : i &lt; current ? &quot;bg-violet-300&quot; : &quot;bg-line&quot;
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>        }`} /&gt;
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>      ))}
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>    &lt;/div&gt;
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>  );
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>}
+</code></pre></div>
+<hr />
+<h2 id="8-inline-feedback">8. Inline Feedback<a class="headerlink" href="#8-inline-feedback" title="Permanent link">&para;</a></h2>
+<h3 id="success">Success<a class="headerlink" href="#success" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>&lt;p className=&quot;text-xs text-green-600 font-medium&quot;&gt;✓ Saved successfully.&lt;/p&gt;
+</code></pre></div>
+<h3 id="error-validation">Error / validation<a class="headerlink" href="#error-validation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>&lt;p className=&quot;text-xs text-coral&quot;&gt;{error}&lt;/p&gt;
+</code></pre></div>
+<h3 id="warning-banner">Warning banner<a class="headerlink" href="#warning-banner" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>&lt;div className=&quot;rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5&quot;&gt;
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>  &lt;p className=&quot;text-xs font-medium text-amber-800&quot;&gt;...&lt;/p&gt;
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>  &lt;p className=&quot;text-xs text-amber&quot;&gt;...&lt;/p&gt;
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>&lt;/div&gt;
+</code></pre></div>
+<h3 id="duplicate-info-banner">Duplicate / info banner<a class="headerlink" href="#duplicate-info-banner" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>&lt;div className=&quot;flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5 text-xs&quot;&gt;
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>  &lt;span className=&quot;text-amber mt-0.5 shrink-0&quot;&gt;⚠&lt;/span&gt;
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>  &lt;span className=&quot;text-amber-800&quot;&gt;...&lt;/span&gt;
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>&lt;/div&gt;
+</code></pre></div>
+<h3 id="loading-pulse">Loading pulse<a class="headerlink" href="#loading-pulse" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>&lt;p className=&quot;text-xs text-ink-3 animate-pulse&quot;&gt;Loading…&lt;/p&gt;
+</code></pre></div>
+<hr />
+<h2 id="9-spacing-sizing-conventions">9. Spacing &amp; Sizing Conventions<a class="headerlink" href="#9-spacing-sizing-conventions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Modal max width</td>
+<td><code>max-w-lg</code> (512px)</td>
+</tr>
+<tr>
+<td>Modal horizontal padding</td>
+<td><code>px-6</code></td>
+</tr>
+<tr>
+<td>Section gap inside modal</td>
+<td><code>space-y-3</code> or <code>space-y-4</code></td>
+</tr>
+<tr>
+<td>Card padding</td>
+<td><code>p-4</code></td>
+</tr>
+<tr>
+<td>Input height</td>
+<td><code>py-1.5</code> → ~34px</td>
+</tr>
+<tr>
+<td>Button height (standard)</td>
+<td><code>py-2</code> → ~36px</td>
+</tr>
+<tr>
+<td>Icon button size</td>
+<td><code>p-1.5</code> with <code>w-3.5 h-3.5</code> icon</td>
+</tr>
+<tr>
+<td>Nav button size</td>
+<td><code>h-9 w-9</code></td>
+</tr>
+<tr>
+<td>Tag/pill gap</td>
+<td><code>gap-1.5</code> or <code>gap-2</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-do-dont">10. Do / Don't<a class="headerlink" href="#10-do-dont" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>✅ Do</th>
+<th>❌ Don't</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>text-ink</code></td>
+<td><code>text-gray-900</code> (for UI text)</td>
+</tr>
+<tr>
+<td><code>bg-raised</code></td>
+<td><code>bg-white</code> (for card/modal bg)</td>
+</tr>
+<tr>
+<td><code>border-line</code></td>
+<td><code>border-gray-200</code> (for structural borders)</td>
+</tr>
+<tr>
+<td><code>text-accent</code></td>
+<td><code>text-violet-600</code> (for brand accent)</td>
+</tr>
+<tr>
+<td><code>bg-accent text-white</code> for primary buttons</td>
+<td><code>bg-violet-600 text-white</code></td>
+</tr>
+<tr>
+<td><code>hover:bg-violet-700</code> for button hover</td>
+<td><code>hover:bg-accent</code> (no visual change)</td>
+</tr>
+<tr>
+<td><code>text-coral</code> for errors</td>
+<td><code>text-red-600</code></td>
+</tr>
+<tr>
+<td><code>rounded-xl</code> for panels/modals</td>
+<td><code>rounded-2xl</code> (inconsistent sizing)</td>
+</tr>
+<tr>
+<td><code>shadow-xl</code> for modals</td>
+<td><code>shadow-2xl</code> (too heavy)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Raw Tailwind colors are still fine for:</strong> data visualisation (chart bars, stat cards), reading-status badges, metadata-source badges, and other domain-specific colour coding that isn't part of the structural UI chrome.</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/NiklasAbraham/PaperManager" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

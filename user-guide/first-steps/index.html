@@ -6,23 +6,27 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Personal academic paper manager with AI, knowledge graph, and full-text search">
+        <meta name="description" content="A self-hosted second brain for research papers, with AI summaries, interactive concepts and a Neo4j knowledge graph">
       
       
-        <meta name="author" content="PaperManager Contributors">
+        <meta name="author" content="Niklas Abraham">
       
       
-        <link rel="canonical" href="https://niklasabraham.github.io/PaperManager/tasks/t08_projects/">
+        <link rel="canonical" href="https://niklasabraham.github.io/PaperManager/user-guide/first-steps/">
       
       
+        <link rel="prev" href="../..">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+        <link rel="next" href="../../self_hosting/">
+      
+      
+      <link rel="icon" href="../../img/favicon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>T08 — Projects - PaperManager</title>
+        <title>First steps - PaperManager</title>
       
     
     
@@ -43,10 +47,12 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -65,7 +71,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -74,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#t08-projects" class="md-skip">
+        <a href="#first-steps" class="md-skip">
           Skip to content
         </a>
       
@@ -86,14 +92,12 @@
     
       
 
-  
-
-<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="PaperManager" class="md-header__button md-logo" aria-label="PaperManager" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m19 2-5 4.5v11l5-4.5zM6.5 5C4.55 5 2.45 5.4 1 6.5v14.66c0 .25.25.5.5.5.1 0 .15-.07.25-.07 1.35-.65 3.3-1.09 4.75-1.09 1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.31 4.75 1.06.1.05.15.03.25.03.25 0 .5-.25.5-.5V6.5c-.6-.45-1.25-.75-2-1V19c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V6.5C10.55 5.4 8.45 5 6.5 5"/></svg>
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -110,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              T08 — Projects
+              First steps
             
           </span>
         </div>
@@ -123,20 +127,20 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
       <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
       </label>
     
   
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
       <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
       </label>
     
   
@@ -205,8 +209,14 @@
     
   </nav>
   
+</header>
     
+    <div class="md-container" data-md-component="container">
       
+      
+        
+          
+            
 <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
   <div class="md-grid">
     <ul class="md-tabs__list">
@@ -234,15 +244,37 @@
   
   
   
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Get started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
   
     
     
       <li class="md-tabs__item">
-        <a href="../../user-guide/getting-started/" class="md-tabs__link">
+        <a href="../ingestion/" class="md-tabs__link">
           
   
   
-  User Guide
+  Using PaperManager
 
         </a>
       </li>
@@ -262,7 +294,7 @@
           
   
   
-  Technical Reference
+  Technical reference
 
         </a>
       </li>
@@ -270,35 +302,10 @@
   
 
       
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../decisions/" class="md-tabs__link">
-        
-  
-  
-    
-  
-  Decisions Log
-
-      </a>
-    </li>
-  
-
-      
     </ul>
   </div>
 </nav>
-    
-  
-</header>
-    
-    <div class="md-container" data-md-component="container">
-      
-      
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -320,7 +327,7 @@
     <a href="../.." title="PaperManager" class="md-nav__button md-logo" aria-label="PaperManager" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m19 2-5 4.5v11l5-4.5zM6.5 5C4.55 5 2.45 5.4 1 6.5v14.66c0 .25.25.5.5.5.1 0 .15-.07.25-.07 1.35-.65 3.3-1.09 4.75-1.09 1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.31 4.75 1.06.1.05.15.03.25.03.25 0 .5-.25.5-.5V6.5c-.6-.45-1.25-.75-2-1V19c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V6.5C10.55 5.4 8.45 5 6.5 5"/></svg>
 
     </a>
     PaperManager
@@ -366,33 +373,36 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
-    User Guide
+    Get started
     
   </span>
   
@@ -400,10 +410,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
-            User Guide
+            Get started
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -411,135 +421,116 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../user-guide/getting-started/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    First steps
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
-    Getting Started
+    First steps
     
   </span>
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-guide/ingestion/" class="md-nav__link">
+      
         
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
-  <span class="md-ellipsis">
-    Ingesting Papers
+  
     
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-add-a-paper" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Add a paper
+    </span>
+  </a>
   
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-open-it-and-read" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Open it and read
+    </span>
+  </a>
   
-    <li class="md-nav__item">
-      <a href="../../user-guide/library/" class="md-nav__link">
-        
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-let-it-explain-the-paper" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Let it explain the paper
+    </span>
+  </a>
   
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-put-it-in-a-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Put it in a project
+    </span>
+  </a>
   
-  <span class="md-ellipsis">
-    Library
-    
-  </span>
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-ask-across-everything" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Ask across everything
+    </span>
+  </a>
   
-
-      </a>
-    </li>
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      Where next
+    </span>
+  </a>
   
-
-              
-            
-              
-                
+</li>
+      
+    </ul>
   
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-guide/paper-detail/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Paper Detail
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-guide/knowledge-features/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Knowledge Features
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-guide/mcp-server/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    MCP Server (Claude)
-    
-  </span>
-  
-
-      </a>
+</nav>
+      
     </li>
   
 
@@ -557,7 +548,30 @@
   
   
   <span class="md-ellipsis">
-    Hosting Your Own
+    Hosting your own
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Local development
     
   </span>
   
@@ -595,9 +609,7 @@
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -605,7 +617,7 @@
   
   
   <span class="md-ellipsis">
-    Technical Reference
+    Using PaperManager
     
   </span>
   
@@ -616,7 +628,195 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
-            Technical Reference
+            Using PaperManager
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Adding papers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Library
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../paper-detail/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Reading a paper
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reading-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Concepts, tour and concept map
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge-features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Knowledge chat and graph
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp-server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MCP server (Claude)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Technical reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Technical reference
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -701,7 +901,7 @@
   
   
   <span class="md-ellipsis">
-    Data Model
+    Data model
     
   </span>
   
@@ -724,7 +924,30 @@
   
   
   <span class="md-ellipsis">
-    AI Pipelines
+    AI pipelines
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical/ingestion-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ingestion workflow
     
   </span>
   
@@ -747,7 +970,53 @@
   
   
   <span class="md-ellipsis">
-    API Reference
+    API reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../style-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    UI style guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Decisions log
     
   </span>
   
@@ -761,28 +1030,6 @@
           </ul>
         </nav>
       
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../decisions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Decisions Log
-    
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -814,45 +1061,54 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#goal" class="md-nav__link">
+  <a href="#1-add-a-paper" class="md-nav__link">
     <span class="md-ellipsis">
-      Goal
+      1. Add a paper
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#cypher-queries-dbqueriesprojectspy" class="md-nav__link">
+  <a href="#2-open-it-and-read" class="md-nav__link">
     <span class="md-ellipsis">
-      Cypher queries (db/queries/projects.py)
+      2. Open it and read
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#api-endpoints" class="md-nav__link">
+  <a href="#3-let-it-explain-the-paper" class="md-nav__link">
     <span class="md-ellipsis">
-      API endpoints
+      3. Let it explain the paper
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#done-when" class="md-nav__link">
+  <a href="#4-put-it-in-a-project" class="md-nav__link">
     <span class="md-ellipsis">
-      Done when
+      4. Put it in a project
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
+  <a href="#5-ask-across-everything" class="md-nav__link">
     <span class="md-ellipsis">
-      Tests
+      5. Ask across everything
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      Where next
     </span>
   </a>
   
@@ -877,100 +1133,80 @@
   
 
 
-<h1 id="t08-projects">T08 — Projects<a class="headerlink" href="#t08-projects" title="Permanent link">&para;</a></h1>
-<p><strong>Phase:</strong> 2 — Core data
-<strong>Depends on:</strong> T05
-<strong>Touches:</strong> <code>backend/db/queries/projects.py</code>, <code>backend/routers/projects.py</code></p>
-<h2 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h2>
-<p>Create Project nodes. Add papers to projects. Link projects to each other.
-A paper can belong to multiple projects.</p>
-<h2 id="cypher-queries-dbqueriesprojectspy">Cypher queries (db/queries/projects.py)<a class="headerlink" href="#cypher-queries-dbqueriesprojectspy" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span> <span class="nf">create_project</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span> <span class="o">...</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">def</span> <span class="nf">get_project</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="n">project_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">def</span> <span class="nf">list_projects</span><span class="p">(</span><span class="n">driver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span> <span class="o">...</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">def</span> <span class="nf">update_project</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="n">project_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span> <span class="o">...</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">def</span> <span class="nf">delete_project</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="n">project_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">def</span> <span class="nf">add_paper_to_project</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="n">paper_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">project_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1"># MATCH (p:Paper {id:$pid}), (proj:Project {id:$projid})</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1"># MERGE (p)-[:IN_PROJECT]-&gt;(proj)</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="k">def</span> <span class="nf">remove_paper_from_project</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="n">paper_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">project_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="k">def</span> <span class="nf">get_project_papers</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="n">project_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span> <span class="o">...</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="c1"># MATCH (p:Paper)-[:IN_PROJECT]-&gt;(proj:Project {id:$id}) RETURN p</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="k">def</span> <span class="nf">link_projects</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="n">project_a_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">project_b_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="c1"># MERGE (a)-[:RELATED_TO]-(b)</span>
-</code></pre></div>
-<h2 id="api-endpoints">API endpoints<a class="headerlink" href="#api-endpoints" title="Permanent link">&para;</a></h2>
+<h1 id="first-steps">First steps<a class="headerlink" href="#first-steps" title="Permanent link">&para;</a></h1>
+<p>This page takes one paper from upload to concept map. It assumes PaperManager is already
+running and you can log in; if not, start with <a href="../../self_hosting/">Hosting your own</a>.</p>
+<p>Plan about ten minutes, most of it waiting for the AI steps to finish in the background.</p>
+<h2 id="1-add-a-paper">1. Add a paper<a class="headerlink" href="#1-add-a-paper" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Open <strong>Library</strong> (the first item in the top menu).</li>
+<li>Click <strong>+</strong> (<em>Add paper</em>). Drag a PDF into the drop zone, or paste a link such as
+   <code>https://arxiv.org/abs/2206.00364</code>.</li>
+<li>PaperManager looks up title, authors, year and DOI on Semantic Scholar and CrossRef. A badge
+   shows where the details came from; yellow or red means <em>please check</em>.</li>
+<li>Fix anything that is wrong and confirm.</li>
+</ol>
+<p>The paper appears in your library straight away. Summary, topics, figures and references
+are added in the background over the next minute or two.</p>
+<div class="admonition tip">
+<p class="admonition-title">Many papers at once</p>
+<p>Drop several PDFs at once, or click <strong>+ → Import multiple papers at once</strong> and paste a list
+of DOIs, arXiv IDs or URLs. See <a href="../ingestion/">Ingesting papers</a>.</p>
+</div>
+<h2 id="2-open-it-and-read">2. Open it and read<a class="headerlink" href="#2-open-it-and-read" title="Permanent link">&para;</a></h2>
+<p>Click the paper. The view has two halves:</p>
 <table>
 <thead>
 <tr>
-<th>Method</th>
-<th>Path</th>
-<th>Description</th>
+<th>Left side</th>
+<th>Right side</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>POST</code></td>
-<td><code>/projects</code></td>
-<td>Create project</td>
-</tr>
-<tr>
-<td><code>GET</code></td>
-<td><code>/projects</code></td>
-<td>List all projects</td>
-</tr>
-<tr>
-<td><code>GET</code></td>
-<td><code>/projects/{id}</code></td>
-<td>Get project + its papers</td>
-</tr>
-<tr>
-<td><code>PATCH</code></td>
-<td><code>/projects/{id}</code></td>
-<td>Update name/description/status</td>
-</tr>
-<tr>
-<td><code>DELETE</code></td>
-<td><code>/projects/{id}</code></td>
-<td>Delete project (not papers)</td>
-</tr>
-<tr>
-<td><code>POST</code></td>
-<td><code>/projects/{id}/papers</code></td>
-<td>Add paper to project <code>{"paper_id": "..."}</code></td>
-</tr>
-<tr>
-<td><code>DELETE</code></td>
-<td><code>/projects/{id}/papers/{paper_id}</code></td>
-<td>Remove paper from project</td>
-</tr>
-<tr>
-<td><code>POST</code></td>
-<td><code>/projects/{a}/related/{b}</code></td>
-<td>Link two projects</td>
+<td>PDF, abstract, <strong>summary</strong>, figures, tables, references, related papers, claims</td>
+<td><strong>Notes</strong>, <strong>Chat</strong>, <strong>Highlights</strong>, <strong>Concepts</strong>, <strong>Tour</strong></td>
 </tr>
 </tbody>
 </table>
-<h2 id="done-when">Done when<a class="headerlink" href="#done-when" title="Permanent link">&para;</a></h2>
+<p>Try these in order:</p>
 <ul>
-<li>[ ] Can create a project and add papers to it</li>
-<li>[ ] <code>GET /projects/{id}</code> returns project + paper list</li>
-<li>[ ] A paper can appear in multiple projects</li>
-<li>[ ] Two projects can be linked via RELATED_TO</li>
+<li><strong>Summary</strong> (left): the AI summary of the whole paper.</li>
+<li><strong>Figures</strong> (left): every figure with its caption; ask a question about one.</li>
+<li><strong>Chat</strong> (right): ask anything about this paper, e.g. <em>"What is the main limitation?"</em></li>
+<li><strong>Highlights</strong>: select text in the PDF to highlight it in a colour; highlights are listed here.</li>
 </ul>
-<h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
-<p><code>backend/tests/test_projects.py</code>
-- Create project → 201
-- Add paper → IN_PROJECT relationship in Neo4j
-- Add same paper twice → still only 1 relationship (MERGE)
-- Get project papers → returns correct paper
-- Add paper to two projects → paper appears in both
-- Delete project → papers still exist, just unlinked
-- Link two projects → RELATED_TO exists</p>
+<p><img alt="Summary next to the PDF" class="pm-shot" src="../../img/screenshots/summary.webp" /></p>
+<h2 id="3-let-it-explain-the-paper">3. Let it explain the paper<a class="headerlink" href="#3-let-it-explain-the-paper" title="Permanent link">&para;</a></h2>
+<p>Two tabs on the right help with hard papers. Both are explained in
+<a href="../reading-tools/">Concepts, tour and concept map</a>.</p>
+<ul>
+<li><strong>Tour → Make a quick tour.</strong> You get an overview, a list of sections you can skip, and
+  6–12 stops. Click a stop (or use ← / →) and the PDF jumps to the passage it is about.</li>
+<li><strong>Concepts → Find concepts.</strong> PaperManager marks ideas on the PDF pages that a picture
+  explains better than text, and draws an animation, plot or formula breakdown for each one.</li>
+</ul>
+<h2 id="4-put-it-in-a-project">4. Put it in a project<a class="headerlink" href="#4-put-it-in-a-project" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Open <strong>Projects</strong>, type a name and click <strong>Create</strong>.</li>
+<li>In the project, use <em>Search library to add a paper…</em> to add your paper (and a few more).</li>
+<li>Click <strong>Concept map</strong>. Each paper's key concepts are extracted and joined into one graph.
+   Concepts shared by several papers grow larger; the filters narrow it by author, year or
+   kind of concept.</li>
+</ol>
+<h2 id="5-ask-across-everything">5. Ask across everything<a class="headerlink" href="#5-ask-across-everything" title="Permanent link">&para;</a></h2>
+<p>Open <strong>Knowledge</strong> in the top menu and ask a question, for example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>@project:MyThesis Which papers compare against diffusion baselines, and how do they differ?
+</code></pre></div>
+<p>The answer cites the papers it used. Leave out the <code>@project:</code> part to search the whole
+library, or turn on web search for questions your papers do not cover. More in
+<a href="../knowledge-features/">Knowledge features</a>.</p>
+<h2 id="where-next">Where next<a class="headerlink" href="#where-next" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../library/">Library</a>: search, filters and views</li>
+<li><a href="../paper-detail/">Reading a paper</a>: every tab of the paper view</li>
+<li><a href="../mcp-server/">MCP server</a>: use your library from Claude Desktop or Claude Code</li>
+</ul>
 
 
 
@@ -1003,15 +1239,50 @@ A paper can belong to multiple projects.</p>
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../.." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Home
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../self_hosting/" class="md-footer__link md-footer__link--next" aria-label="Next: Hosting your own">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Hosting your own
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
   
-  
-    Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-      Material for MkDocs
-    </a>
   
 </div>
       
@@ -1053,7 +1324,7 @@ A paper can belong to multiple projects.</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.instant", "search.suggest", "search.highlight", "content.tabs.link", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>

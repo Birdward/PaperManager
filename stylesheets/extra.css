@@ -1,0 +1,190 @@
+/* PaperManager docs: violet accent (matches the app), hero on the home page. */
+
+:root,
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #6d28d9;
+  --md-primary-fg-color--light: #8b5cf6;
+  --md-primary-fg-color--dark: #5b21b6;
+  --md-accent-fg-color: #7c3aed;
+  --md-typeset-a-color: #6d28d9;
+  --pm-panel: #f7f5fc;
+  --pm-border: rgba(76, 29, 149, 0.12);
+  --pm-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 30px 60px -30px rgba(46, 16, 101, 0.55);
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #2a1f45;
+  --md-primary-fg-color--light: #3b2d61;
+  --md-primary-fg-color--dark: #1d1530;
+  --md-accent-fg-color: #a78bfa;
+  --md-typeset-a-color: #b49cff;
+  --md-default-bg-color: #14121b;
+  --pm-panel: #1c1926;
+  --pm-border: rgba(255, 255, 255, 0.08);
+  --pm-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 30px 60px -30px rgba(0, 0, 0, 0.9);
+}
+
+.md-typeset h1 { font-weight: 700; letter-spacing: -0.02em; }
+.md-typeset h2 { font-weight: 700; letter-spacing: -0.01em; }
+
+/* ------------------------------------------------------------------ hero */
+
+.pm-hero {
+  color: #fff;
+  background:
+    radial-gradient(1200px 500px at 85% -10%, rgba(167, 139, 250, 0.45), transparent 60%),
+    linear-gradient(160deg, #5b21b6 0%, #4c1d95 55%, #2e1065 100%);
+  overflow: hidden;
+}
+[data-md-color-scheme="slate"] .pm-hero {
+  background:
+    radial-gradient(1200px 500px at 85% -10%, rgba(124, 58, 237, 0.35), transparent 60%),
+    linear-gradient(160deg, #2a1f45 0%, #1d1530 60%, #14121b 100%);
+}
+
+.pm-hero__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr);
+  align-items: center;
+  gap: 3rem;
+  padding: 4rem 0.8rem 4.5rem;
+}
+
+.pm-hero__eyebrow {
+  margin: 0 0 1rem;
+  font-family: var(--md-code-font-family);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ddd6fe;
+}
+
+.pm-hero h1 {
+  margin: 0 0 1.1rem;
+  font-size: clamp(2.1rem, 4.2vw, 3.1rem);
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.pm-hero__lede {
+  margin: 0 0 1.8rem;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.86);
+  max-width: 34rem;
+}
+
+.pm-hero__ctas { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.pm-hero .md-button {
+  margin: 0;
+  border-radius: 99px;
+  padding: 0.6em 1.4em;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.pm-hero .md-button:hover { transform: translateY(-1px); background: rgba(255, 255, 255, 0.12); color: #fff; border-color: #fff; }
+.pm-hero .md-button--primary { background: #fff; color: #4c1d95; border-color: #fff; }
+.pm-hero .md-button--primary:hover { background: #ede9fe; color: #4c1d95; }
+.pm-hero .pm-hero__ghost { border-color: transparent; text-decoration: underline; text-underline-offset: 3px; }
+
+.pm-hero__shot {
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #e9ebef;
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.15);
+  transform: perspective(1800px) rotateY(-6deg) rotateX(2deg);
+}
+.pm-hero__shot::before {
+  /* browser chrome: three dots */
+  content: "";
+  display: block;
+  height: 22px;
+  background:
+    radial-gradient(circle at 14px 11px, #ff5f57 4px, transparent 4.5px),
+    radial-gradient(circle at 28px 11px, #febc2e 4px, transparent 4.5px),
+    radial-gradient(circle at 42px 11px, #28c840 4px, transparent 4.5px),
+    #e9ebef;
+}
+.pm-hero__shot img { display: block; width: 100%; height: auto; }
+
+/* The home page has no sidebars: its h1 lives in the hero, so hide the markdown one. */
+.md-typeset .pm-home > h1:first-of-type { display: none; }
+
+/* ------------------------------------------------------------------ home sections */
+
+.md-typeset .pm-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.2rem 0 0.5rem;
+}
+.md-typeset .pm-step {
+  background: var(--pm-panel);
+  border: 1px solid var(--pm-border);
+  border-radius: 12px;
+  padding: 1.1rem 1.2rem 0.6rem;
+}
+.md-typeset .pm-step__n {
+  display: inline-grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: var(--md-accent-fg-color);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+.md-typeset .pm-step h3 { margin: 0 0 0.3rem; font-size: 0.95rem; }
+.md-typeset .pm-step p { margin: 0 0 0.6rem; font-size: 0.78rem; }
+
+.md-typeset .pm-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 2.2rem;
+  align-items: center;
+  margin: 2.4rem 0;
+}
+.md-typeset .pm-row--flip > :first-child { order: 2; }
+.md-typeset .pm-row h3 { margin-top: 0; font-size: 1.1rem; }
+.md-typeset .pm-row img,
+.md-typeset img.pm-shot {
+  display: block;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--pm-border);
+  box-shadow: var(--pm-shadow);
+}
+
+.md-typeset .grid.cards > ul > li,
+.md-typeset .grid > .card {
+  border-radius: 12px;
+  border-color: var(--pm-border);
+}
+.md-typeset .grid.cards > ul > li:hover { border-color: var(--md-accent-fg-color); }
+
+/* ------------------------------------------------------------------ small screens */
+
+@media screen and (max-width: 76.1875em) {
+  .pm-hero__inner { grid-template-columns: 1fr; gap: 2.2rem; padding: 2.8rem 1rem 3rem; }
+  .pm-hero__shot { transform: none; }
+}
+@media screen and (max-width: 44.9375em) {
+  .md-typeset .pm-steps,
+  .md-typeset .pm-row { grid-template-columns: 1fr; gap: 1rem; }
+  .md-typeset .pm-row--flip > :first-child { order: 0; }
+}
+
+/* Home: the four "where next" cards as a 2 × 2 grid, and a compact diagram. */
+@media screen and (min-width: 45em) {
+  .md-typeset .pm-home .grid.cards > ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.md-typeset .pm-home .mermaid { max-width: 46rem; margin: 0 auto; }
+.md-typeset h1 { color: var(--md-default-fg-color); }

@@ -631,6 +631,24 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#demo-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Demo data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running the tests
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#whats-next" class="md-nav__link">
     <span class="md-ellipsis">
       What's Next?
@@ -1238,6 +1256,24 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#demo-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Demo data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running the tests
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#whats-next" class="md-nav__link">
     <span class="md-ellipsis">
       What's Next?
@@ -1416,6 +1452,34 @@ in <code>.env</code>. A free <a href="https://console.neo4j.io">AuraDB</a> insta
 <li>Seeds 157 default tags across source, workflow, content, and domain categories</li>
 </ol>
 <p>You should see the library page with a drop zone and a <strong>+</strong> button to add papers.</p>
+<hr />
+<h2 id="demo-data">Demo data<a class="headerlink" href="#demo-data" title="Permanent link">&para;</a></h2>
+<p>To try the app before adding your own papers, load the demo library into your <strong>local</strong>
+development database:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">cd</span><span class="w"> </span>backend
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>python<span class="w"> </span>scripts/seed_demo.py<span class="w">                  </span><span class="c1"># your login (DEFAULT_USER_NAME) joins the demo projects</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>python<span class="w"> </span>scripts/seed_demo.py<span class="w"> </span>--member<span class="w"> </span>alice<span class="w">   </span><span class="c1"># or name the login(s) that should see them</span>
+</code></pre></div>
+<p>It adds ten well-known papers (Attention Is All You Need, DDPM, Score SDE, EDM, Flow Matching,
+AlphaFold 2 and 3, RFdiffusion, ESM-2 and a GNN survey) with their authors, topics, tags and
+citations, two projects, notes with <code>@mentions</code> and <code>#topics</code>, claims, a project concept map and a
+conversation. It is the same data the tests use (<code>backend/tests/fixtures/demo_library.json</code>).
+The script only adds data, does nothing when the demo is already loaded, and refuses a Neo4j
+that is not on this machine unless you pass <code>--force</code>.</p>
+<hr />
+<h2 id="running-the-tests">Running the tests<a class="headerlink" href="#running-the-tests" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>backend/scripts/run_tests.sh<span class="w">                          </span><span class="c1"># everything except @integration tests</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>backend/scripts/run_tests.sh<span class="w"> </span>-q<span class="w"> </span>tests/test_search.py<span class="w">  </span><span class="c1"># any pytest arguments</span>
+</code></pre></div>
+<p>The script starts a throwaway Neo4j and runs pytest in a one-off container of the backend image
+(build it first with <code>docker compose build backend</code>), on a Docker network with no route to the
+internet, then removes both. Your <code>.env</code> is not used. Tests that would reach an outside service
+fail and name the host; tests that really need one (Anthropic, Google Drive) are marked
+<code>@pytest.mark.integration</code> and are left out by default.</p>
+<p>Tests write to the database, so they refuse to run against a Neo4j that is not on this machine
+unless <code>PM_TESTS_ALLOW_DB=1</code> says it is disposable. Never point them at your real library.
+Tests that need a populated graph use the <code>demo_library</code> fixture, which empties the test
+database and loads the demo library.</p>
 <hr />
 <h2 id="whats-next">What's Next?<a class="headerlink" href="#whats-next" title="Permanent link">&para;</a></h2>
 <ul>

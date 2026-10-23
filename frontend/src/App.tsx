@@ -103,10 +103,12 @@ function AppLayout() {
       {!isLogin && (
         isKnowledge ? (
           /* On /knowledge: navbar is fixed, hidden above viewport, slides down on hover */
-          <div className="group fixed top-0 left-0 right-0 z-50">
+          /* The translated navbar still occupies its layout box, so only the strip may take
+             the pointer while it is hidden; otherwise the page's own top bar can't be clicked. */
+          <div className="group fixed top-0 left-0 right-0 z-50 pointer-events-none">
             {/* Invisible trigger strip — always at y=0, captures hover */}
-            <div className="h-1.5 w-full bg-violet-400/30 group-hover:opacity-0 transition-opacity" />
-            <div className="-translate-y-full group-hover:translate-y-0 transition-transform duration-200 shadow-lg">
+            <div className="h-1.5 w-full bg-violet-400/30 group-hover:opacity-0 transition-opacity pointer-events-auto" />
+            <div className="-translate-y-full group-hover:translate-y-0 group-hover:pointer-events-auto transition-transform duration-200 shadow-lg">
               <NavBar />
             </div>
           </div>

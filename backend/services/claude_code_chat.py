@@ -18,6 +18,7 @@ import contextvars
 import logging
 import os
 import queue
+import re
 import tempfile
 import threading
 from pathlib import Path
@@ -107,6 +108,14 @@ def _subprocess_env() -> dict[str, str]:
     return env
 
 
+_FENCE = re.compile(r"^```", re.M)
+
+
+def _open_fence(text: str) -> bool:
+    """True when *text* ends inside a fenced block (an odd number of ``` lines)."""
+    return len(_FENCE.findall(text)) % 2 == 1
+
+
 def _prompt(history: list[dict[str, Any]], question: str) -> str:
     """Flatten earlier turns into one prompt; each request is a fresh CLI session."""
     if not history:
@@ -150,15 +159,19 @@ async def _run(
     async def messages():
         yield {"type": "user", "message": {"role": "user", "content": prompt}}
 
-    wrote_text = False
+    written: list[str] = []
     async for message in query(prompt=messages(), options=options):
         if isinstance(message, StreamEvent):
             event = message.event
             if event.get("type") == "content_block_start" and event.get("content_block", {}).get("type") == "text":
-                if wrote_text:
-                    emit({"type": "token", "text": "\n\n"})
+                if written:
+                    # A reply stopped mid-card (safety refusal, then the CLI's fallback model
+                    # continues) leaves its fence open; close it so the rest renders.
+                    sep = "\n```\n\n" if _open_fence("".join(written)) else "\n\n"
+                    written.append(sep)
+                    emit({"type": "token", "text": sep})
             elif event.get("type") == "content_block_delta" and event.get("delta", {}).get("type") == "text_delta":
-                wrote_text = True
+                written.append(event["delta"]["text"])
                 emit({"type": "token", "text": event["delta"]["text"]})
             elif event.get("type") == "content_block_start" and event.get("content_block", {}).get("name") == "WebSearch":
                 emit({"type": "step", "kind": "web", "description": "Searching the web", "cypher": None, "count": None})

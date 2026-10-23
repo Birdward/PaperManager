@@ -216,7 +216,7 @@ function Answer({ item, onPaper, onVisualise, onRepair }: {
       {item.steps.length > 0 && <div className="kc-steps">{item.steps.map((s, i) => <StepRow key={i} step={s} onPaper={onPaper} />)}</div>}
       {sections.map((sec, s) => (
         <div key={s} className="kc-section">
-          {sec.trim() && <Markdown text={sec} />}
+          {sec.trim() && <Markdown text={sec} streaming={item.streaming} />}
           {placed(s).filter(({ c }) => c.spec).map(({ c, i }) => (
             <ConceptCard key={`${i}-${JSON.stringify(c.spec).length}`} spec={c.spec!} label={c.label}
               onRuntimeError={(m) => setCrashed((x) => ({ ...x, [i]: m }))}

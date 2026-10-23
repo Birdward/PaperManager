@@ -30,9 +30,20 @@ export function parseConcept(raw: string): { label?: string; spec: ConceptSpec }
   return { label: typeof d.label === "string" ? d.label : undefined, spec: clean as unknown as ConceptSpec };
 }
 
+/** A ```concept or ```structure block whose answer has finished but whose text is not a valid card. */
+export function BrokenBlock({ kind, source }: { kind: string; source: string }) {
+  return (
+    <div className="kc-card kc-card-broken">
+      <div className="kc-card-broken-label">{kind} card cut off: the answer ended before the card was complete</div>
+      <pre>{source}</pre>
+    </div>
+  );
+}
+
 /** A ```concept block in an answer, rendered as an interactive card. */
-export default function ConceptBlock({ source }: { source: string }) {
+export default function ConceptBlock({ source, streaming = false }: { source: string; streaming?: boolean }) {
   const parsed = useMemo(() => parseConcept(source), [source]);
+  if (!parsed && !streaming) return <BrokenBlock kind="concept" source={source} />;
   if (!parsed) return <div className="kc-card kc-card-pending">concept …</div>;
   return <ConceptCard spec={parsed.spec} label={parsed.label} />;
 }

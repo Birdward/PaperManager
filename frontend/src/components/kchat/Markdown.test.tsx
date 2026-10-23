@@ -11,8 +11,8 @@ vi.mock("./structure/StructureView", () => ({
 
 const ID = "c7d9ec3d-0df1-4c18-970f-7f6dc34e5e3e";
 
-function renderMd(text: string, links = { openPaper: vi.fn(), openFigure: vi.fn() }) {
-  const r = render(<ChatLinksContext.Provider value={links}><Markdown text={text} /></ChatLinksContext.Provider>);
+function renderMd(text: string, links = { openPaper: vi.fn(), openFigure: vi.fn() }, streaming = false) {
+  const r = render(<ChatLinksContext.Provider value={links}><Markdown text={text} streaming={streaming} /></ChatLinksContext.Provider>);
   return { ...r, links };
 }
 
@@ -94,10 +94,17 @@ describe("Markdown: concept and structure blocks", () => {
     ['{"type": "3d", "code": "x"}'],
     ["not json at all"],
     ["[]"],
-  ])("keeps a malformed concept block as a placeholder: %s", (src) => {
-    const { container } = renderMd("```concept\n" + src + "\n```\nAfter.");
+  ])("keeps a malformed concept block as a placeholder while streaming: %s", (src) => {
+    const { container } = renderMd("```concept\n" + src + "\n```\nAfter.", undefined, true);
     expect(container.querySelector(".kc-card-pending")?.textContent).toContain("concept");
     expect(screen.getByText("After.")).toBeInTheDocument();
+  });
+
+  it("shows a cut-off concept block with its text once the answer has finished", () => {
+    const { container } = renderMd('```concept\n{"type": "formula", "main_\n```');
+    expect(container.querySelector(".kc-card-pending")).toBeNull();
+    expect(container.querySelector(".kc-card-broken")?.textContent).toContain("concept card cut off");
+    expect(container.querySelector(".kc-card-broken pre")?.textContent).toContain('"main_');
   });
 
   it("renders a structure block (PDB id and JSON spec)", async () => {
@@ -107,13 +114,21 @@ describe("Markdown: concept and structure blocks", () => {
   });
 
   it.each([['{"models": ['], ["just words"], ['{"title": "no models"}']])(
-    "keeps a malformed structure block as a placeholder: %s", async (src) => {
-      const { container } = renderMd("```structure\n" + src + "\n```\nAfter.");
+    "keeps a malformed structure block as a placeholder while streaming: %s", async (src) => {
+      const { container } = renderMd("```structure\n" + src + "\n```\nAfter.", undefined, true);
       expect(await screen.findByText("After.")).toBeInTheDocument();
       expect(container.querySelector('[data-testid="structure"]')).toBeNull();
       expect(container.querySelector(".kc-card-pending")?.textContent).toContain("structure");
     },
   );
+
+  it("shows an unclosed structure block and the text swallowed by it once the answer has finished", async () => {
+    // A reply stopped mid-card leaves the fence open, so everything after it lands inside.
+    const { container } = renderMd('```structure\n{"models": [{"pdb": "5C5P", "color": "viol\n\nThe answer was stopped.');
+    await screen.findByText(/structure card cut off/);
+    expect(container.querySelector('[data-testid="structure"]')).toBeNull();
+    expect(container.querySelector(".kc-card-broken pre")?.textContent).toContain("The answer was stopped.");
+  });
 
   it("leaves other fenced blocks as code", () => {
     const { container } = renderMd("```json\n{\"type\": \"formula\"}\n```");

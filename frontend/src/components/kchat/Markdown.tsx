@@ -69,7 +69,8 @@ function MdImage({ src, alt }: { src: string; alt: string }) {
   );
 }
 
-export const Markdown = memo(function Markdown({ text }: { text: string }) {
+/** `streaming`: the answer is still arriving, so an unreadable card may just be unfinished. */
+export const Markdown = memo(function Markdown({ text, streaming = false }: { text: string; streaming?: boolean }) {
   const links = useContext(ChatLinksContext);
   return (
     <div className="kc-md">
@@ -82,12 +83,12 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
         components={{
           pre({ node, children, ...rest }) {
             const concept = fencedSource(node as HastNode | undefined, "concept");
-            if (concept !== null) return <ConceptBlock source={concept} />;
+            if (concept !== null) return <ConceptBlock source={concept} streaming={streaming} />;
             const structure = fencedSource(node as HastNode | undefined, "structure");
             if (structure !== null) {
               return (
                 <Suspense fallback={<div className="kc-card kc-card-pending">structure …</div>}>
-                  <StructureBlock source={structure} />
+                  <StructureBlock source={structure} streaming={streaming} />
                 </Suspense>
               );
             }

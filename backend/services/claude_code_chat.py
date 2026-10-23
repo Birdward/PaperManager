@@ -56,6 +56,15 @@ def claude_code_available(username: str | None = None) -> bool:
     return _has_credentials()
 
 
+def subscription_fallback_available() -> bool:
+    """True when work meant for LiteLLM may run on the Claude subscription instead.
+
+    Background jobs (concept map, ingest helpers) have no request user; they
+    count as the owner's.
+    """
+    return claude_code_available(get_request_user() or settings.default_user_name)
+
+
 def _require_available() -> None:
     if not claude_code_available():
         raise ValueError(
@@ -260,6 +269,46 @@ def run_structured_claude_code(
             if not isinstance(event["data"], dict):
                 raise RuntimeError("Claude Code returned no structured output")
             return event["data"]
+    raise RuntimeError("Claude Code returned no result")
+
+
+def complete_claude_code(system: str, prompt: str, *, model: str = "sonnet") -> str:
+    """One tool-less Claude Code turn; returns the answer text.
+
+    Stands in for the LiteLLM model when no LiteLLM endpoint is configured.
+    Callers check ``subscription_fallback_available()`` first.
+    """
+
+    async def run(emit: Callable[[dict[str, Any]], None]) -> None:
+        from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
+
+        system_, prompt_ = _fit_system(system or "You are a helpful research assistant.", prompt)
+        options = ClaudeAgentOptions(
+            system_prompt=system_,
+            model=model,
+            tools=[],
+            allowed_tools=[],
+            strict_mcp_config=True,
+            permission_mode="dontAsk",
+            setting_sources=[],
+            cwd=tempfile.gettempdir(),
+            env=_subprocess_env(),
+            max_turns=1,
+        )
+
+        async def messages():
+            yield {"type": "user", "message": {"role": "user", "content": prompt_}}
+
+        async for message in query(prompt=messages(), options=options):
+            if isinstance(message, ResultMessage):
+                if message.is_error:
+                    detail = "; ".join(message.errors or []) or message.result or message.subtype
+                    raise RuntimeError(f"Claude Code failed: {detail}")
+                emit({"type": "result", "text": message.result or ""})
+
+    for event in _drive(run):
+        if event["type"] == "result":
+            return event["text"].strip()
     raise RuntimeError("Claude Code returned no result")
 
 

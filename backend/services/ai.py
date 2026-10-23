@@ -14,6 +14,7 @@ from services.litellm_client import (
     WEB_SEARCH_TOOL_OPENAI,
     chat_completion,
     get_litellm_client,
+    litellm_configured,
     parse_tool_args,
     resolve_chat_model,
 )
@@ -42,6 +43,17 @@ def _personal_client() -> anthropic.Anthropic:
         base_url=_ANTHROPIC_BASE_URL,
         http_client=anthropic.DefaultHttpxClient(verify=_ssl_verify()),
     )
+
+
+def _subscription_instead_of_key() -> bool:
+    """True when the user has no personal API key but may use Claude Code.
+
+    Requests for the personal "claude" model then run on the subscription.
+    """
+    from services.claude_code_chat import claude_code_available
+
+    key = (get_effective_ai_config().get("anthropic_api_key") or "").strip()
+    return not key and claude_code_available()
 
 
 def _work_client() -> anthropic.Anthropic:
@@ -204,6 +216,9 @@ def chat_with_paper(
         title=paper_title or "(unknown)",
         text=paper_text[:60000],
     )
+    if _subscription_instead_of_key():
+        from services.claude_code_chat import chat_with_paper_claude_code
+        return chat_with_paper_claude_code(paper_text, paper_title, question, history)
     client = _personal_client()
     messages: list[dict[str, Any]] = list(history or [])
     messages.append({"role": "user", "content": question})
@@ -236,6 +251,9 @@ def chat_with_paper_litellm(
 ) -> str:
     """Answer *question* about a paper using LiteLLM (Gemma via proxy).
     Uses tool calling to allow web searches when the model supports it."""
+    if not litellm_configured():
+        from services.claude_code_chat import chat_with_paper_claude_code
+        return chat_with_paper_claude_code(paper_text, paper_title, question, history)
     client = get_litellm_client()
     model = settings.litellm_model
 
@@ -461,6 +479,9 @@ def _condense_paper_for_budget(title: str, raw_text: str, target_tokens: int) ->
         "acknowledgements, references list.\n\n"
         f"Title: {title}\n\nText:\n{raw_text[:80000]}"
     )
+    if _subscription_instead_of_key():
+        from services.claude_code_chat import complete_claude_code
+        return complete_claude_code("", prompt, model="haiku")
     msg = _personal_client().messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=min(4096, target_tokens + 200),
@@ -642,6 +663,8 @@ def knowledge_chat_stream(
         return "\n".join(parts)
 
     # ── Claude Code (subscription) path ──────────────────────────────────────
+    if model == "claude" and _subscription_instead_of_key():
+        model = "claude-code"
     if model == "claude-code":
         from services.claude_code_chat import knowledge_chat_claude_code
         papers_block = "\n\n".join(_paper_block(p) for p in papers)
@@ -804,6 +827,9 @@ def summarize_chapter(title: str, text: str, model: str | None = None) -> str:
         )
         return message.content[0].text
     elif effective_model.startswith("claude-"):
+        if _subscription_instead_of_key():
+            from services.claude_code_chat import complete_claude_code
+            return complete_claude_code("", prompt)
         client = _personal_client()
         message = client.messages.create(
             model=effective_model,
@@ -1018,6 +1044,9 @@ def find_research_gaps(
             ],
         )
     else:  # "claude" (personal)
+        if _subscription_instead_of_key():
+            from services.claude_code_chat import complete_claude_code
+            return complete_claude_code("You are a research strategist.", system_prompt)
         client = _personal_client()
         return _run_claude_with_tools(
             client,
@@ -1046,7 +1075,10 @@ def extract_claims(text: str, title: str, model: str | None = None) -> list[dict
     )
     
     try:
-        if effective_model.startswith("claude-"):
+        if effective_model.startswith("claude-") and _subscription_instead_of_key():
+            from services.claude_code_chat import complete_claude_code
+            raw = complete_claude_code("", prompt)
+        elif effective_model.startswith("claude-"):
             client = _personal_client()
             message = client.messages.create(
                 model=effective_model,
@@ -1155,6 +1187,9 @@ def synthesize_papers(
         papers_block=papers_block,
     )
 
+    if _subscription_instead_of_key():
+        from services.claude_code_chat import complete_claude_code
+        return complete_claude_code("You are a research synthesis expert.", prompt)
     client = _personal_client()
     if use_web:
         return _run_claude_with_tools(

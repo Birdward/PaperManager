@@ -21,7 +21,7 @@ services:
     depends_on:
       - neo4j
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"   # this machine only
     env_file: .env
     environment:
       - PORT=8080
@@ -29,11 +29,13 @@ services:
       - NEO4J_USER=neo4j
       - FRONTEND_URL=http://localhost:8080
       - TRUSTED_HOSTS=localhost,127.0.0.1
-    # Google Drive OAuth files created in step 3 of the guide; token.json is
-    # rewritten when the access token refreshes, so it is mounted read-write.
+    # PDFs and figures with STORAGE_MODE=local (LOCAL_STORAGE_DIR=/data/files).
+    # For Google Drive instead, mount the OAuth files from step 2 of the guide:
+    #   - ./backend/credentials.json:/app/credentials.json:ro
+    #   - ./backend/token.json:/app/token.json
     volumes:
-      - ./backend/credentials.json:/app/credentials.json:ro
-      - ./backend/token.json:/app/token.json
+      - app_files:/data/files
 
 volumes:
   neo4j_data:
+  app_files:

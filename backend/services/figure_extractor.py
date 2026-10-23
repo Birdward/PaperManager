@@ -533,6 +533,9 @@ def extract_figures(
 def _extract_figures_dispatch(pdf_bytes: bytes, caption_method: str) -> dict:
     from config import settings
 
+    if (settings.docling_mode or "").strip().lower() == "off":
+        return {"figures": _extract_figures_pypdf(pdf_bytes, caption_method), "tables": []}
+
     n_pages = _count_pdf_pages(pdf_bytes)
     log.info("extract_figures: PDF has %d pages (threshold=%d)", n_pages, _MAX_PAGES_FULL)
 

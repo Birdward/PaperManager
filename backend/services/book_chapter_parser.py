@@ -331,6 +331,10 @@ def detect_chapters_docling(pdf_bytes: bytes) -> list[dict]:
     """
     from config import settings
 
+    if (settings.docling_mode or "").strip().lower() == "off":
+        log.info("Docling is off; skipping Docling chapter detection")
+        return []
+
     try:
         if settings.docling_serve_url.strip():
             from services.docling_remote import convert_pdf, load_document_from_response

@@ -36,6 +36,30 @@ WEB_SEARCH_TOOL_OPENAI = {
 }
 
 
+def litellm_configured() -> bool:
+    """True when a LiteLLM endpoint is set; otherwise chat_completion uses Claude Code."""
+    return bool((settings.litellm_endpoint or "").strip())
+
+
+def _complete_on_subscription(messages: list[dict[str, Any]], json_mode: bool) -> str:
+    """Run a chat_completion request through Claude Code on the Claude subscription."""
+    from services.claude_code_chat import _prompt, complete_claude_code, subscription_fallback_available
+
+    if not subscription_fallback_available():
+        raise ValueError(
+            "No LiteLLM endpoint is configured and Claude Code is not enabled for this user. "
+            "Set LITELLM_ENDPOINT, or CLAUDE_CODE_USERS and CLAUDE_CODE_OAUTH_TOKEN."
+        )
+    system = "\n\n".join(str(m["content"]) for m in messages if m["role"] == "system")
+    if json_mode:
+        system += "\n\nReply with a single JSON object and nothing else."
+    turns = [{"role": m["role"], "content": str(m.get("content") or "")} for m in messages if m["role"] != "system"]
+    question = turns.pop()["content"] if turns else ""
+    log.info("Claude Code → chat_completion (no LiteLLM endpoint) | messages=%d | json_mode=%s",
+             len(messages), json_mode)
+    return complete_claude_code(system.strip(), _prompt(turns, question))
+
+
 def get_litellm_client() -> OpenAI:
     """Return an OpenAI client routed through the self-hosted LiteLLM proxy."""
     api_key = (settings.litellm_api_key or "").strip()
@@ -73,6 +97,9 @@ def chat_completion(
     ``max_retries`` overrides the SDK's automatic retries (2 by default).
     """
     import time as _time
+
+    if not litellm_configured():
+        return _complete_on_subscription(messages, json_mode)
 
     client = get_litellm_client()
     overrides = {k: v for k, v in (("timeout", timeout), ("max_retries", max_retries)) if v is not None}

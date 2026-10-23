@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     # a few slow uploads can never starve login of a worker thread.
     server_threadpool_size: int = 200
 
+    # Where PDFs and figures go: "drive" (Google Drive) or "local" (LOCAL_STORAGE_DIR)
+    storage_mode: str = "drive"
+    local_storage_dir: str = "/data/files"
+
     # Google Drive
     google_client_id: str = ""
     google_client_secret: str = ""
@@ -84,7 +88,8 @@ class Settings(BaseSettings):
     # that otherwise 429s reference lookups during bulk imports.
     semantic_scholar_api_key: str = ""
 
-    # Docling: "local" (in-process, needs docling package) or "on_demand" (GPU via Inference Manager)
+    # Docling: "local" (in-process, needs docling package), "on_demand" (GPU via Inference Manager)
+    # or "off" (pypdf figure extraction only, no chapter detection)
     docling_mode: str = "on_demand"
     inference_manager_url: str = ""
     docling_remote_host: str = ""

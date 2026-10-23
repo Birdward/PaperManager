@@ -1,8 +1,15 @@
-"""Google Drive service — upload/retrieve/delete research PDFs."""
+"""File storage for research PDFs and figure images: Google Drive or local disk.
+
+``STORAGE_MODE=local`` keeps files under ``LOCAL_STORAGE_DIR`` instead of Drive.
+Local file ids start with ``local-``, so reads and deletes go to the right
+backend whatever the current mode is.
+"""
 from __future__ import annotations
 
 import io
 import json
+import re
+import uuid
 from pathlib import Path
 
 from google.auth.transport.requests import Request
@@ -57,6 +64,32 @@ def _build_client_config() -> dict:
     )
 
 
+_LOCAL_PREFIX = "local-"
+_LOCAL_ID = re.compile(r"^local-[0-9a-f]{32}\.(pdf|png)$")
+
+
+def _use_local() -> bool:
+    return (settings.storage_mode or "drive").strip().lower() == "local"
+
+
+def _is_local(file_id: str) -> bool:
+    return file_id.startswith(_LOCAL_PREFIX)
+
+
+def _local_path(file_id: str) -> Path:
+    if not _LOCAL_ID.match(file_id):
+        raise ValueError(f"Invalid local file id: {file_id!r}")
+    return Path(settings.local_storage_dir).expanduser() / file_id
+
+
+def _save_local(data: bytes, ext: str) -> str:
+    file_id = f"{_LOCAL_PREFIX}{uuid.uuid4().hex}.{ext}"
+    path = _local_path(file_id)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+    return file_id
+
+
 def get_drive_service():
     """Return an authenticated Drive v3 service object."""
     creds = None
@@ -89,6 +122,8 @@ def get_drive_service():
 
 def upload_pdf(pdf_bytes: bytes, filename: str) -> str:
     """Upload *pdf_bytes* to the configured Drive folder and return the file ID."""
+    if _use_local():
+        return _save_local(pdf_bytes, "pdf")
     service = get_drive_service()
     file_metadata = {
         "name": filename,
@@ -105,11 +140,15 @@ def upload_pdf(pdf_bytes: bytes, filename: str) -> str:
 
 def get_file_url(file_id: str) -> str:
     """Return a browser-viewable URL for the given Drive file ID."""
+    if _is_local(file_id):
+        return ""
     return f"https://drive.google.com/file/d/{file_id}/view"
 
 
 def download_pdf(file_id: str) -> bytes:
     """Download a Drive file and return its raw bytes."""
+    if _is_local(file_id):
+        return _local_path(file_id).read_bytes()
     service = get_drive_service()
     buf = io.BytesIO()
     request = service.files().get_media(fileId=file_id)
@@ -155,6 +194,8 @@ def _get_figures_folder() -> str:
 
 def upload_image(image_bytes: bytes, filename: str) -> str:
     """Upload PNG image bytes to the figures subfolder and return the file ID."""
+    if _use_local():
+        return _save_local(image_bytes, "png")
     service = get_drive_service()
     folder_id = _get_figures_folder()
     file_metadata = {"name": filename, "parents": [folder_id]}
@@ -168,6 +209,9 @@ def upload_image(image_bytes: bytes, filename: str) -> str:
 
 
 def delete_file(file_id: str) -> None:
-    """Move a Drive file to trash (soft delete)."""
+    """Move a Drive file to trash (soft delete); local files are removed."""
+    if _is_local(file_id):
+        _local_path(file_id).unlink(missing_ok=True)
+        return
     service = get_drive_service()
     service.files().update(fileId=file_id, body={"trashed": True}).execute()

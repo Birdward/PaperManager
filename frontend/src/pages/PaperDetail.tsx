@@ -703,7 +703,8 @@ export default function PaperDetail() {
   if (!paper) return <div className="p-8 text-sm text-gray-400">Loading…</div>;
 
   const BASE        = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
-  const driveUrl    = paper.drive_file_id ? `https://drive.google.com/file/d/${paper.drive_file_id}/view` : null;
+  // Files kept on the server's disk (STORAGE_MODE=local) have no Drive page.
+  const driveUrl    = paper.drive_file_id && !paper.drive_file_id.startsWith("local-") ? `https://drive.google.com/file/d/${paper.drive_file_id}/view` : null;
   const driveEmbed  = paper.drive_file_id ? `${BASE}/papers/${paper.id}/pdf` : null;
 
   const cycleStatus = async () => {

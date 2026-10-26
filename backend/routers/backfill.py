@@ -83,8 +83,9 @@ def backfill_summary():
 def backfill_figures(caption_method: str = "ollama"):
     """Extract figures for papers that have a PDF on Drive but no figures yet."""
     from services.figure_extractor import extract_figures
-    from services.drive import download_pdf, upload_image
-    from db.queries.figures import create_figure, list_figures
+    from services.drive import download_pdf
+    from services.ingest_assets import save_figures_and_tables
+    from db.queries.figures import list_figures
 
     driver = get_driver()
     papers = list_papers(driver, skip=0, limit=10_000)
@@ -101,19 +102,11 @@ def backfill_figures(caption_method: str = "ollama"):
 
         try:
             pdf_bytes = download_pdf(paper["drive_file_id"])
-            figs = extract_figures(pdf_bytes, caption_method=caption_method)
-            for i, fig in enumerate(figs):
-                fig_filename = f"{paper['id']}_p{fig['page_number']}_{i+1}.png"
-                fig_drive_id = upload_image(fig["image_bytes"], fig_filename)
-                create_figure(driver, {
-                    "paper_id": paper["id"],
-                    "figure_number": fig["figure_number"],
-                    "caption": fig["caption"],
-                    "drive_file_id": fig_drive_id,
-                    "page_number": fig["page_number"],
-                })
+            # extract_figures returns {"figures": [...], "tables": [...]}; save both like an upload.
+            extraction = extract_figures(pdf_bytes, caption_method=caption_method)
+            n_figs, n_tbls = save_figures_and_tables(driver, paper["id"], extraction)
             processed += 1
-            log.info("Backfill figures | paper=%s | count=%d", paper["id"], len(figs))
+            log.info("Backfill figures | paper=%s | figures=%d | tables=%d", paper["id"], n_figs, n_tbls)
         except Exception as exc:
             log.warning("Backfill figures error | paper=%s | %s", paper["id"], exc)
             errors += 1

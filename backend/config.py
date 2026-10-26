@@ -81,6 +81,11 @@ class Settings(BaseSettings):
     # model (nomic-embed-text 404s), so calling it just wastes ~1s per upload
     # and logs an error. Set to a valid model id to re-enable.
     litellm_embed_model: str = ""
+    # Embeddings from their own OpenAI-compatible endpoint (e.g. Ollama at http://ollama:11434),
+    # so they work without LITELLM_ENDPOINT, which would move chat_completion off Claude Code.
+    # Empty = embeddings go through the LiteLLM proxy.
+    embed_endpoint: str = ""
+    embed_api_key: str = ""
     # Map new project papers into the project concept map with Gemma in the background.
     concept_map_auto: bool = True
 

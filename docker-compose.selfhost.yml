@@ -20,6 +20,7 @@ services:
     restart: unless-stopped
     depends_on:
       - neo4j
+      - ollama
     ports:
       - "127.0.0.1:8080:8080"   # this machine only
     env_file: .env
@@ -35,7 +36,19 @@ services:
     #   - ./backend/token.json:/app/token.json
     volumes:
       - app_files:/data/files
+      # Docling's layout models, downloaded on first use; kept across container rebuilds.
+      - hf_cache:/root/.cache/huggingface
+
+  # Embeddings for semantic search (EMBED_ENDPOINT=http://ollama:11434). Pull the model once:
+  #   docker compose -f docker-compose.selfhost.yml exec ollama ollama pull nomic-embed-text
+  ollama:
+    image: ollama/ollama:0.40.11
+    restart: unless-stopped
+    volumes:
+      - ollama_models:/root/.ollama
 
 volumes:
   neo4j_data:
   app_files:
+  hf_cache:
+  ollama_models:

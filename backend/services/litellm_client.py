@@ -74,6 +74,18 @@ def get_litellm_client() -> OpenAI:
     return OpenAI(base_url=endpoint, api_key=api_key, timeout=20.0)
 
 
+def _embed_client() -> OpenAI:
+    """Client for embeddings: EMBED_ENDPOINT when set (e.g. Ollama), else the LiteLLM proxy."""
+    endpoint = (settings.embed_endpoint or "").strip().rstrip("/")
+    if not endpoint:
+        return get_litellm_client()
+    if not endpoint.endswith("/v1"):
+        endpoint = f"{endpoint}/v1"
+    # Ollama ignores the key, but the OpenAI client requires one.
+    api_key = (settings.embed_api_key or "").strip() or "unused"
+    return OpenAI(base_url=endpoint, api_key=api_key, timeout=60.0)
+
+
 def resolve_chat_model(model: str | None) -> str:
     """Map legacy Ollama model names and empty values to the configured LiteLLM model."""
     if not model or model in ("llama3.2:3b", "ollama", "litellm"):
@@ -134,7 +146,7 @@ def embed_text(text: str, model: str | None = None) -> list[float]:
     """Embed text via LiteLLM embeddings API."""
     import time as _time
 
-    client = get_litellm_client()
+    client = _embed_client()
     embed_model = model or settings.litellm_embed_model
     log.info("LiteLLM → embed_text | model=%s | chars=%d", embed_model, len(text))
     t0 = _time.time()

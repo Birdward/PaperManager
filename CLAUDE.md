@@ -16,8 +16,9 @@ what was learned while setting it up.
 ## How this instance is set up (and why)
 
 It runs in Docker on Edward's Mac via `docker-compose.selfhost.yml`
-(http://localhost:8080). Everything AI goes through a Claude subscription. There is no API key,
-no LiteLLM and no Docling.
+(http://localhost:8080). Everything AI goes through a Claude subscription. There is no API key and
+no LiteLLM. Docling runs locally in the app container, and embeddings come from an Ollama
+container.
 
 | Area | Setting | Why |
 |---|---|---|
@@ -25,7 +26,8 @@ no LiteLLM and no Docling.
 | Account | The token is from Edward's **work** Claude account, part of Anthropic's life-science programme | Reduced bio safeguards and access to Mythos. Opus 5.5's stronger safeguards on his personal account stopped protein–ligand structure answers partway through |
 | LiteLLM | `LITELLM_ENDPOINT` empty | Not wanted. Everything that would use it runs on Claude Code instead |
 | Storage | `STORAGE_MODE=local`, `LOCAL_STORAGE_DIR=/data/files` | No Google Drive. Edward chose local disk over setting up Google OAuth |
-| Docling | `DOCLING_MODE=off` | Not needed for now. Figures come from pypdf, there are no tables, and chapters come from regex. The image still installs Docling and torch so it can be turned back on |
+| Docling | `DOCLING_MODE=local` | Figures, tables and chapters. pypdf (the `off` fallback) found 2 figures per paper against Docling's 12–14. Docling takes about 30–50 s and peaks around 3.4 GB per paper. Processing time doesn't matter to Edward (uploads can run overnight) |
+| Embeddings | `EMBED_ENDPOINT=http://ollama:11434`, `LITELLM_EMBED_MODEL=nomic-embed-text` | Semantic search (Knowledge Chat's pre-fetch and `semantic_search` tool). It uses the 768-dimensional size the `paper_embeddings` index expects. Never set `LITELLM_ENDPOINT` to get embeddings: that would move every `chat_completion` off Claude Code |
 | Login | User `edward` (owner and admin) | Edward chose a short, weak password. Ask him for it. It was set directly in the database, bypassing the 8-character check in `create_default_user.py` |
 | Network | Port bound to `127.0.0.1:8080` | Because the password is weak. Don't expose it beyond localhost |
 
@@ -61,6 +63,15 @@ These are the four commits on `feature/customise`. Keep them in mind when re-syn
 4. **`027e446`** `App.tsx`: the hidden navbar on `/knowledge` ignores the pointer. Its translated
    layout box covered the chat's top bar and blocked "+ New".
 
+5. **Embeddings, Docling and figures backfill** (the commit after `CLAUDE.md`)
+   - `config.py` and `services/litellm_client.py`: `EMBED_ENDPOINT` / `EMBED_API_KEY` and
+     `_embed_client()`. `embed_text` uses its own endpoint when one is set.
+   - `routers/backfill.py`: the figures backfill was broken upstream. It looped over
+     `extract_figures`' dict result as if it were a list of figures. It now calls
+     `save_figures_and_tables`, like uploads do.
+   - `docker-compose.selfhost.yml`: an `ollama` service (pinned to `0.40.11`) and the
+     `hf_cache` volume for Docling's models.
+
 Fixes 2–4 do nothing unless something has gone wrong. Keep them even though the life-science
 account should avoid the refusals.
 
@@ -85,6 +96,7 @@ After merging, check these, because new upstream code can silently bypass this f
 - New Google Drive calls outside `services/drive.py`'s public functions.
 - New Docling entry points that don't respect `DOCLING_MODE=off`.
 - Changes to `.env.example` or `config.py` that need matching entries in `.env`.
+- New embedding call sites that use `get_litellm_client()` instead of `embed_text`.
 
 ## Running, testing and debugging
 
@@ -120,6 +132,11 @@ After merging, check these, because new upstream code can silently bypass this f
   `sonnet` for background work, concepts, the tour and `complete_claude_code`, and `haiku` for
   condensing papers. Mythos is available on the account but not wired in. Check the model name
   Claude Code accepts before switching; don't guess.
+- **Ollama setup:** after creating the `ollama_models` volume for the first time, pull the model
+  once with `docker compose -f docker-compose.selfhost.yml exec ollama ollama pull nomic-embed-text`.
+  Existing papers get figures and embeddings from the Settings page's backfill buttons
+  (`POST /backfill/figures`, `POST /backfill/embeddings`). Embeddings are only made for papers
+  with an abstract or summary, so reference stubs are skipped.
 - **Still needs an API key:** figure-image Q&A (`routers/figures.py`). On the subscription,
   research gaps and synthesis run without web search. UI labels still say "Gemma (LiteLLM)" for
   options that now run on Claude.
@@ -127,8 +144,10 @@ After merging, check these, because new upstream code can silently bypass this f
   investigated: the output came back complete and within the 15k-token budget, so it was
   deliberately left alone. Don't add the API path's 4,096-token cap to the subscription path; it
   would truncate the text.
-- **Data** is in the Docker volumes `papermanager_neo4j_data` and `papermanager_app_files`. It
-  survives rebuilds and is deleted only by `down -v`. The ingest preprocess cache in `/tmp` is
+- **Data** is in the Docker volumes `papermanager_neo4j_data` (database) and
+  `papermanager_app_files` (PDFs and figures). It survives rebuilds and is deleted only by
+  `down -v`. `papermanager_hf_cache` (Docling models, ~0.5 GB) and
+  `papermanager_ollama_models` can be re-downloaded. The ingest preprocess cache in `/tmp` is
   disposable.
 - **Restarts:** Docker Desktop is not set to start at login. The containers are
   `restart: unless-stopped`, so opening Docker Desktop brings the app back.

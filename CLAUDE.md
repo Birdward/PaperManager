@@ -100,6 +100,14 @@ After merging, check these, because new upstream code can silently bypass this f
 
 ## Running, testing and debugging
 
+- **Edward runs everything through the `Makefile`** (`make` lists the commands: start, stop,
+  restart, status, logs, rebuild, reload-env, backup, restore, pull-models, password, upstream,
+  test). Keep it in sync when adding operational commands. `make stop` stops the app and Ollama
+  first, then Neo4j with `-t 120`. `make start` and `make restart` recreate the Neo4j container
+  if it doesn't come up (the stale-PID loop).
+- `deploy/selfhost/start.sh` traps SIGTERM and passes it on to uvicorn and nginx. As PID 1 it
+  used to ignore it, so every `docker stop` of the app waited the full timeout (2 min with `-t 120`).
+
 - **Nothing runs on the Mac directly.** It has no Node or conda, and its system Python is 3.9 (the
   app needs 3.11). Everything runs in Docker.
 - **Code is baked into the image**, not mounted. After a code change, run
@@ -153,6 +161,14 @@ After merging, check these, because new upstream code can silently bypass this f
   `down -v`. `papermanager_hf_cache` (Docling models, ~0.5 GB) and
   `papermanager_ollama_models` can be re-downloaded. The ingest preprocess cache in `/tmp` is
   disposable.
+- **Backups:** `./backup.sh` stops Neo4j, writes a `neo4j-admin database dump` (about 0.4 MB;
+  the volume's ~0.5 GB is mostly preallocated transaction logs) to
+  `~/Documents/PaperManager-backups` (synced by Edward's Documents backup), keeps the newest 5,
+  and brings Neo4j back as a fresh container. A plain `compose stop`/`start` once left Neo4j
+  looping on "Neo4j is already running" (a stale PID file in the container), so the script
+  restarts with `up -d --force-recreate --no-deps neo4j`. `./backup.sh restore FILE` loads a
+  dump. Restore was verified on a throwaway volume. PDFs (`app_files`) are deliberately not
+  included.
 - **Restarts:** Docker Desktop is not set to start at login. The containers are
   `restart: unless-stopped`, so opening Docker Desktop brings the app back.
 - **Unused upstream pieces:** `.mcp.json` points at `papermanager-backend-1`, the container name in

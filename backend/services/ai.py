@@ -1026,6 +1026,10 @@ def find_research_gaps(
         papers_block=papers_block,
     )
     
+    # Without a LiteLLM proxy, "Gemma" runs on Claude like everywhere else, so give it the web too.
+    if model in ("litellm", "ollama") and not litellm_configured():
+        model = "claude"
+
     # Route to appropriate model
     if model == "claude-work":
         client = _work_client()
@@ -1046,7 +1050,10 @@ def find_research_gaps(
     else:  # "claude" (personal)
         if _subscription_instead_of_key():
             from services.claude_code_chat import complete_claude_code
-            return complete_claude_code("You are a research strategist.", system_prompt)
+            return complete_claude_code(
+                "You are a research strategist with web search capabilities.", system_prompt,
+                model="opus", use_web=True,
+            )
         client = _personal_client()
         return _run_claude_with_tools(
             client,
@@ -1189,7 +1196,7 @@ def synthesize_papers(
 
     if _subscription_instead_of_key():
         from services.claude_code_chat import complete_claude_code
-        return complete_claude_code("You are a research synthesis expert.", prompt)
+        return complete_claude_code("You are a research synthesis expert.", prompt, model="opus", use_web=use_web)
     client = _personal_client()
     if use_web:
         return _run_claude_with_tools(

@@ -57,3 +57,32 @@ def test_reply_stopped_mid_card_gets_its_fence_closed(monkeypatch):
     text = "".join(tokens)
     assert '"viol\n```\n\nFinishing the card.' in text
     assert not claude_code_chat._open_fence(text)
+
+
+def test_complete_claude_code_sends_image_and_allows_web(monkeypatch):
+    import claude_agent_sdk
+    from services import claude_code_chat
+
+    seen = {}
+
+    class FakeResult:
+        is_error = False
+        result = "answer"
+
+    async def fake_query(prompt, options):
+        async for message in prompt:
+            seen["content"] = message["message"]["content"]
+        seen["tools"], seen["allowed"] = options.tools, options.allowed_tools
+        yield FakeResult()
+
+    monkeypatch.setattr(claude_agent_sdk, "ResultMessage", FakeResult)
+    monkeypatch.setattr(claude_agent_sdk, "query", fake_query)
+
+    assert claude_code_chat.complete_claude_code("s", "What is plotted?", use_web=True, image_png=b"\x89PNG") == "answer"
+    image, text = seen["content"]
+    assert image["type"] == "image" and image["source"]["media_type"] == "image/png"
+    assert text == {"type": "text", "text": "What is plotted?"}
+    assert seen["tools"] == seen["allowed"] == ["WebSearch"]
+
+    claude_code_chat.complete_claude_code("s", "plain")
+    assert seen["content"] == "plain" and seen["tools"] == []

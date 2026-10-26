@@ -137,9 +137,13 @@ After merging, check these, because new upstream code can silently bypass this f
   Existing papers get figures and embeddings from the Settings page's backfill buttons
   (`POST /backfill/figures`, `POST /backfill/embeddings`). Embeddings are only made for papers
   with an abstract or summary, so reference stubs are skipped.
-- **Still needs an API key:** figure-image Q&A (`routers/figures.py`). On the subscription,
-  research gaps and synthesis run without web search. UI labels still say "Gemma (LiteLLM)" for
-  options that now run on Claude.
+- **Figure questions, research gaps and synthesis** run on Claude Code (Opus) without an API key.
+  `complete_claude_code(..., image_png=...)` sends the figure image. `use_web=True` allows the
+  WebSearch tool: research gaps always uses it, and synthesis when its `use_web` is set. When
+  LiteLLM isn't configured, research gaps' default "Gemma" option is routed to this Claude path.
+  These calls take 55–75 s, so `frontend/nginx.conf` gives `/synthesis` and `/research-gaps`
+  `proxy_read_timeout 600s` (nginx's 60 s default returned 504s). Give any other slow, non-streaming
+  route the same treatment. UI labels still say "Gemma (LiteLLM)" for options that run on Claude.
 - **`_condense_paper_for_budget`** asks for `target_tokens * 3` words (45,000). This was
   investigated: the output came back complete and within the 15k-token budget, so it was
   deliberately left alone. Don't add the API path's 4,096-token cap to the subscription path; it

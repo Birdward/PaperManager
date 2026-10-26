@@ -14,6 +14,7 @@ web search is on, WebSearch.
 from __future__ import annotations
 
 import asyncio
+import base64
 import contextvars
 import logging
 import os
@@ -285,11 +286,20 @@ def run_structured_claude_code(
     raise RuntimeError("Claude Code returned no result")
 
 
-def complete_claude_code(system: str, prompt: str, *, model: str = "sonnet") -> str:
-    """One tool-less Claude Code turn; returns the answer text.
+def complete_claude_code(
+    system: str,
+    prompt: str,
+    *,
+    model: str = "sonnet",
+    use_web: bool = False,
+    image_png: bytes | None = None,
+) -> str:
+    """One Claude Code answer; returns its final text.
 
-    Stands in for the LiteLLM model when no LiteLLM endpoint is configured.
-    Callers check ``subscription_fallback_available()`` first.
+    Stands in for the LiteLLM model when no LiteLLM endpoint is configured, and
+    for the API-key paths when there is no key. Callers check
+    ``subscription_fallback_available()`` or ``_subscription_instead_of_key()`` first.
+    *use_web* allows the WebSearch tool; *image_png* goes before the prompt in the message.
     """
 
     async def run(emit: Callable[[dict[str, Any]], None]) -> None:
@@ -299,18 +309,24 @@ def complete_claude_code(system: str, prompt: str, *, model: str = "sonnet") -> 
         options = ClaudeAgentOptions(
             system_prompt=system_,
             model=model,
-            tools=[],
-            allowed_tools=[],
+            tools=["WebSearch"] if use_web else [],
+            allowed_tools=["WebSearch"] if use_web else [],
             strict_mcp_config=True,
             permission_mode="dontAsk",
             setting_sources=[],
             cwd=tempfile.gettempdir(),
             env=_subprocess_env(),
-            max_turns=1,
+            # Each web search is a turn of its own.
+            max_turns=10 if use_web else 1,
         )
 
+        content: str | list[dict[str, Any]] = prompt_
+        if image_png is not None:
+            image = {"type": "base64", "media_type": "image/png", "data": base64.standard_b64encode(image_png).decode()}
+            content = [{"type": "image", "source": image}, {"type": "text", "text": prompt_}]
+
         async def messages():
-            yield {"type": "user", "message": {"role": "user", "content": prompt_}}
+            yield {"type": "user", "message": {"role": "user", "content": content}}
 
         async for message in query(prompt=messages(), options=options):
             if isinstance(message, ResultMessage):

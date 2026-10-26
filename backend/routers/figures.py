@@ -172,6 +172,11 @@ def chat_with_figure(paper_id: str, figure_id: str, body: FigureChatRequest):
     }]
 
     try:
+        from services.ai import _subscription_instead_of_key
+
+        if body.model != "claude-work" and _subscription_instead_of_key():
+            from services.claude_code_chat import complete_claude_code
+            return {"answer": complete_claude_code(system, body.question + context, model="opus", image_png=image_bytes)}
         if body.model == "claude-work":
             if not work_key:
                 raise ValueError("Work API key not configured.")

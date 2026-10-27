@@ -331,6 +331,11 @@ def upload(
 
     log.info("Paper saved | id=%s | title=%.60s", paper["id"], paper.get("title"))
 
+    # Step 5b's embedding: none of the three save paths above stores it.
+    if meta.get("embedding"):
+        with driver.session() as session:
+            session.run("MATCH (p:Paper {id: $id}) SET p.embedding = $emb", id=paper["id"], emb=meta["embedding"])
+
     # Step 6a: Attribute to user
     if x_user_name:
         try:

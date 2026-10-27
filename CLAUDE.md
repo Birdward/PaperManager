@@ -170,6 +170,9 @@ After merging, check these, because new upstream code can silently bypass this f
   id: a `pending`/`running` job from an earlier process counts as `missing`, so the queue restarts
   it instead of spinning forever. Neo4j has `oom_score_adj: -500` so an OOM kills the app, which
   restarts, rather than the database. There is no memory cap, by Edward's choice.
+- **Upload embeddings:** `routers/papers.py` computes the embedding in step 5b, but none of
+  its three save paths (`create_paper`, `merge_paper_by_doi`, stub enrichment) stored it. It is
+  now `SET` right after "Paper saved". Upstream never noticed because its embedding proxy didn't work.
 - **Figure/table numbers** keep thesis/book styles ("3.1", "B.14"); upstream kept only the first
   integer.
 - **Backups:** `./backup.sh` stops Neo4j, writes a `neo4j-admin database dump` (about 0.4 MB;

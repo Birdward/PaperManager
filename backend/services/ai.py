@@ -204,24 +204,35 @@ def _run_claude_with_tools(
             return ""
 
 
+def _paper_context(paper_text: str, document: Any, limit: int) -> str:
+    """The paper as given to a chat without page tools: from *document* (pages, outline and a
+    note on what's missing) when there is one, else the first *limit* characters."""
+    if document is None:
+        return paper_text[:limit]
+    from services.paper_pages import HOW_NONE
+
+    return document.context_text(HOW_NONE, budget=limit)
+
+
 def chat_with_paper(
     paper_text: str,
     paper_title: str,
     question: str,
     history: list[dict[str, Any]] | None = None,
     my_notes: str = "",
+    document: Any = None,
 ) -> str:
     """Answer *question* about a paper using its full text as context.
     Claude can also search the web for related information."""
     system = _load_prompt("chat_system.txt").format(
         title=paper_title or "(unknown)",
-        text=paper_text[:60000],
+        text=_paper_context(paper_text, document, 60000),
     )
     if my_notes:
         system += "\n\n" + my_notes
     if _subscription_instead_of_key():
         from services.claude_code_chat import chat_with_paper_claude_code
-        return chat_with_paper_claude_code(paper_text, paper_title, question, history, my_notes)
+        return chat_with_paper_claude_code(paper_text, paper_title, question, history, my_notes, document)
     client = _personal_client()
     messages: list[dict[str, Any]] = list(history or [])
     messages.append({"role": "user", "content": question})
@@ -234,13 +245,14 @@ def chat_with_paper_work(
     question: str,
     history: list[dict[str, Any]] | None = None,
     my_notes: str = "",
+    document: Any = None,
 ) -> str:
     """Answer *question* using the work/Foundry Anthropic gateway.
     Claude can also search the web for related information."""
     client = _work_client()
     system = _load_prompt("chat_system.txt").format(
         title=paper_title or "(unknown)",
-        text=paper_text[:60000],
+        text=_paper_context(paper_text, document, 60000),
     )
     if my_notes:
         system += "\n\n" + my_notes
@@ -255,18 +267,19 @@ def chat_with_paper_litellm(
     question: str,
     history: list[dict[str, Any]] | None = None,
     my_notes: str = "",
+    document: Any = None,
 ) -> str:
     """Answer *question* about a paper using LiteLLM (Gemma via proxy).
     Uses tool calling to allow web searches when the model supports it."""
     if not litellm_configured():
         from services.claude_code_chat import chat_with_paper_claude_code
-        return chat_with_paper_claude_code(paper_text, paper_title, question, history, my_notes)
+        return chat_with_paper_claude_code(paper_text, paper_title, question, history, my_notes, document)
     client = get_litellm_client()
     model = settings.litellm_model
 
     system = _load_prompt("chat_system.txt").format(
         title=paper_title or "(unknown)",
-        text=paper_text[:12000],
+        text=_paper_context(paper_text, document, 12000),
     )
     if my_notes:
         system += "\n\n" + my_notes
@@ -380,12 +393,13 @@ SEMANTIC_SEARCH_TOOL: dict[str, Any] = {
 LOAD_FULL_TEXT_TOOL: dict[str, Any] = {
     "name": "load_full_text",
     "description": (
-        "Load the complete extracted text of a specific paper from the database. "
+        "Load the extracted text of a specific paper from the database. "
         "Use this when the abstract and summary are insufficient to answer the question — "
         "for example, when the user asks about specific methods, equations, experimental "
         "details, pseudocode, or hyperparameters that are only in the full paper body. "
-        "paper_id must be a UUID from the pre-loaded paper context. "
-        "Call this at most 3 times per query."
+        "paper_id must be a UUID from the pre-loaded paper context. Long documents (theses, "
+        "books) come back in part, with their outline and a note on which PDF pages you got: "
+        "then call again with `pages` for a page range or `query` to find passages."
     ),
     "input_schema": {
         "type": "object",
@@ -397,6 +411,14 @@ LOAD_FULL_TEXT_TOOL: dict[str, Any] = {
             "reason": {
                 "type": "string",
                 "description": "One sentence explaining why the full text is needed.",
+            },
+            "pages": {
+                "type": "string",
+                "description": "PDF page range to read, e.g. \"59-75\" (for long documents).",
+            },
+            "query": {
+                "type": "string",
+                "description": "A word or phrase: returns the pages that contain it, with snippets.",
             },
         },
         "required": ["paper_id", "reason"],
@@ -594,9 +616,12 @@ def execute_library_tool(name: str, args: dict[str, Any], driver: Any) -> tuple[
         lft_title = lft_paper_id  # fallback label
         if driver and lft_paper_id:
             try:
+                from services.paper_pages import HOW_KNOWLEDGE_CHAT, PaperDocument
+
                 with driver.session() as _sess:
                     row = _sess.run(
-                        "MATCH (p:Paper {id: $id}) RETURN p.raw_text AS raw_text, p.title AS title",
+                        "MATCH (p:Paper {id: $id}) RETURN p.raw_text AS raw_text, p.title AS title, "
+                        "p.drive_file_id AS drive_file_id",
                         id=lft_paper_id,
                     ).single()
                 if row and row["raw_text"]:
@@ -604,12 +629,25 @@ def execute_library_tool(name: str, args: dict[str, Any], driver: Any) -> tuple[
                     lft_title = row["title"] or lft_paper_id
                     raw_tokens = estimate_tokens(raw)
                     budget_tokens = 15_000
-                    if raw_tokens <= budget_tokens:
+                    doc = PaperDocument.for_paper(row.data())
+                    pages_arg = re.fullmatch(r"\s*(\d+)\s*(?:-\s*(\d+))?\s*", args.get("pages") or "")
+                    if args.get("query"):
+                        lft_content = doc.search(args["query"])
+                        tok_label = f'searched for "{args["query"][:40]}"'
+                    elif pages_arg:
+                        start = int(pages_arg.group(1))
+                        lft_content = doc.read_pages(start, int(pages_arg.group(2) or start))
+                        tok_label = ("" if doc.complete else "⚠ partial: ") + f"pages {doc.coverage()['pages_read']} of {doc.total_pages}"
+                    elif raw_tokens <= budget_tokens:
                         lft_content = raw
                         tok_label = f"{raw_tokens:,} tokens"
-                    else:
+                    elif len(raw) <= 100_000:
+                        # The condensed text still covers the whole paper.
                         lft_content = _condense_paper_for_budget(lft_title, raw, budget_tokens)
                         tok_label = f"condensed to ~{estimate_tokens(lft_content):,} tokens"
+                    else:
+                        lft_content = doc.context_text(HOW_KNOWLEDGE_CHAT, budget=budget_tokens * 4)
+                        tok_label = f"⚠ partial: pages {doc.coverage()['pages_read']} of {doc.total_pages}"
                 else:
                     lft_content = "[Full text not available for this paper]"
                     tok_label = "no text stored"

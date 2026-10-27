@@ -1445,8 +1445,11 @@ def chat(paper_id: str, body: ChatRequest, x_user_name: Optional[str] = Header(N
     except Exception as exc:
         log.warning("Could not load notes for paper chat (non-fatal) | %s", exc)
         my_notes = ""
+    from services.paper_pages import PaperDocument
+
+    document = PaperDocument.for_paper(paper) if raw_text or paper.get("drive_file_id") else None
     kwargs = dict(paper_text=raw_text, paper_title=paper.get("title", ""), question=body.question, history=history,
-                  my_notes=my_notes)
+                  my_notes=my_notes, document=document)
     if body.model in ("litellm", "ollama"):
         answer = chat_with_paper_litellm(**kwargs)
     elif body.model == "claude-work":
@@ -1472,7 +1475,8 @@ def chat(paper_id: str, body: ChatRequest, x_user_name: Optional[str] = Header(N
     except Exception as exc:
         log.warning("Failed to save chat to Neo4j: %s", exc)
 
-    return {"answer": answer, "conversation_id": conv_id}
+    return {"answer": answer, "conversation_id": conv_id,
+            "coverage": document.coverage() if document is not None else None}
 
 
 # ── Per-paper conversation management ─────────────────────────────────────────

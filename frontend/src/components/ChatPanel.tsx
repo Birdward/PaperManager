@@ -4,7 +4,7 @@ import { mdPlugins } from "../lib/markdown";
 import {
   listPaperConversations, getPaperConversationMessages,
   renamePaperConversation, compactPaperConversation,
-  deletePaperConversation, chatWithPaper,
+  deletePaperConversation, chatWithPaper, type PaperChatCoverage,
 } from "../api/client";
 import type { Conversation, KnowledgeMessage } from "../types";
 import { CHAT_MODEL_LABELS, useChatModels, type ChatModel } from "../lib/chatModels";
@@ -21,6 +21,9 @@ export default function ChatPanel({ paperId }: Props) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConvId, setActiveConvId]   = useState<string | null>(null);
   const [messages, setMessages]           = useState<KnowledgeMessage[]>([]);
+  // Pages each fresh answer could see, by answer text (a new conversation reloads its messages
+  // from the server with new ids); shown when a long paper was read in part.
+  const [coverage, setCoverage]           = useState<Record<string, PaperChatCoverage>>({});
   const [input, setInput]                 = useState("");
   const [loading, setLoading]             = useState(false);
   const [loadingMsgs, setLoadingMsgs]     = useState(false);
@@ -91,6 +94,7 @@ export default function ChatPanel({ paperId }: Props) {
         created_at: new Date().toISOString(), paper_refs: [],
       };
       setMessages((prev) => [...prev, assistantMsg]);
+      if (res.coverage) setCoverage((prev) => ({ ...prev, [res.answer]: res.coverage! }));
 
       // If this was a new conversation, update the list
       if (!activeConvId && res.conversation_id) {
@@ -366,6 +370,13 @@ export default function ChatPanel({ paperId }: Props) {
                       <div className="prose prose-sm max-w-none overflow-x-auto">
                         <ReactMarkdown {...mdPlugins}>{msg.content}</ReactMarkdown>
                       </div>
+                      {coverage[msg.content] && !coverage[msg.content].complete && (
+                        <p className="mt-1.5 text-[10px] leading-snug text-amber-700 bg-amber-50 border border-amber-200 rounded px-1.5 py-1"
+                          title="Long documents are given to the chat in part; it reads further pages when it needs them.">
+                          ⚠ Long paper: this answer used PDF pages {coverage[msg.content].pages_read} of {coverage[msg.content].total_pages}.
+                          {" "}Ask about a specific chapter or page range to cover other parts.
+                        </p>
+                      )}
                       <div className="flex items-center gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => navigator.clipboard.writeText(msg.content)}
                           className="text-[10px] text-gray-400 hover:text-gray-600">

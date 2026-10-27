@@ -181,9 +181,15 @@ After merging, check these, because new upstream code can silently bypass this f
   about 24k characters, says what was cut). This is designed for hundreds of papers. Notes are
   `(Paper)-[:HAS_NOTE]->(Note)`. Upstream's Knowledge Chat, prompt, Cypher assistant schema and
   debug cleanup used a non-existent `(Note)-[:ABOUT]->(Paper)`, so the chat never saw notes.
-- **Long documents in the chats:** paper chat sends only the first 60,000 characters of
-  `raw_text` and `load_full_text` condenses only the first 80,000, both upstream limits. A
-  thesis (374k characters) is cut off around chapter 2. Not fixed yet.
+- **Long documents in the chats** (`services/paper_pages.py`): a paper's text comes from its PDF
+  page by page (pypdf, cached per file) with the PDF's bookmarks as an outline. Up to 100k
+  characters go to paper chat whole. Beyond that, it gets the opening pages, the outline and a
+  note on what's missing, plus `read_pages` / `search_paper` tools (Claude Code path). Knowledge
+  Chat's `load_full_text` takes `pages` / `query`, and for long documents returns the opening and
+  outline with a "⚠ partial" step. Paper chat returns `coverage` (pages read), and `ChatPanel`
+  shows an amber warning under answers that didn't see the whole document. Highlights store the
+  viewer's 0-based `pageIndex`, so the chats and the export show `page_number + 1`. Figures and
+  tables are already 1-based.
 - **Figure/table numbers** keep thesis/book styles ("3.1", "B.14"); upstream kept only the first
   integer.
 - **Backups:** `./backup.sh` stops Neo4j, writes a `neo4j-admin database dump` (about 0.4 MB;

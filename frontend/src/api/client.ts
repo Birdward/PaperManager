@@ -720,13 +720,16 @@ export async function deletePaperConversation(paperId: string, convId: string): 
   await apiFetch(`/papers/${paperId}/conversations/${convId}`, { method: "DELETE" });
 }
 
+/** PDF pages a paper-chat answer had access to (long documents are read in part). */
+export interface PaperChatCoverage { total_pages: number; pages_read: string; complete: boolean }
+
 export async function chatWithPaper(
   paperId: string,
   question: string,
   history: { role: string; content: string }[],
   model: string,
   conversationId?: string,
-): Promise<{ answer: string; conversation_id: string }> {
+): Promise<{ answer: string; conversation_id: string; coverage?: PaperChatCoverage | null }> {
   return apiFetch(`/papers/${paperId}/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

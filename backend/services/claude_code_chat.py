@@ -347,18 +347,44 @@ def chat_with_paper_claude_code(
     question: str,
     history: list[dict[str, Any]] | None = None,
     my_notes: str = "",
+    document: Any = None,
 ) -> str:
-    """Single-paper chat on Claude Code; returns the full answer."""
+    """Single-paper chat on Claude Code; returns the full answer.
+
+    With a long *document* (services.paper_pages.PaperDocument) the model gets its opening pages
+    and outline, plus read_pages and search_paper tools for the rest.
+    """
     _require_available()
     from services.ai import _load_prompt
+    from services.paper_pages import HOW_PAPER_CHAT
 
     system = _load_prompt("chat_system.txt").format(
         title=paper_title or "(unknown)",
-        text=paper_text[:60000],
+        text=document.context_text(HOW_PAPER_CHAT) if document is not None else paper_text[:60000],
     )
     if my_notes:
         system += "\n\n" + my_notes
     prompt = _prompt(list(history or []), question)
-    return "".join(
-        e["text"] for e in _drive(lambda emit: _run(system, prompt, emit, True, [])) if e["type"] == "token"
-    )
+
+    async def run(emit: Callable[[dict[str, Any]], None]) -> None:
+        tools = []
+        if document is not None and document.is_long:
+            from claude_agent_sdk import tool
+
+            @tool("read_pages", "Read PDF pages start_page..end_page of this paper (about 20 pages per call).",
+                  {"type": "object", "properties": {"start_page": {"type": "integer"}, "end_page": {"type": "integer"}},
+                   "required": ["start_page", "end_page"]})
+            async def read_pages(args: dict[str, Any]) -> dict[str, Any]:
+                text = await asyncio.to_thread(document.read_pages, args["start_page"], args["end_page"])
+                return {"content": [{"type": "text", "text": text}]}
+
+            @tool("search_paper", "Find the pages of this paper that contain a word or phrase, with snippets.",
+                  {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]})
+            async def search_paper(args: dict[str, Any]) -> dict[str, Any]:
+                text = await asyncio.to_thread(document.search, args["query"])
+                return {"content": [{"type": "text", "text": text}]}
+
+            tools = [read_pages, search_paper]
+        await _run(system, prompt, emit, True, tools)
+
+    return "".join(e["text"] for e in _drive(run) if e["type"] == "token")

@@ -1042,10 +1042,10 @@ def export_paper_markdown(paper_id: str, driver: Driver = Depends(get_driver)):
         for ann in annotations:
             color = ann.get("color", "yellow")
             label = color_meaning(color)
-            page = ann.get("page_number")
+            page = ann.get("page_number")  # the viewer's 0-based pageIndex
             text = ann.get("highlighted_text", "").strip()
             note = ann.get("note", "").strip()
-            page_str = f" *(p. {page})*" if page else ""
+            page_str = f" *(p. {page + 1})*" if isinstance(page, int) else ""
             lines.append(f"**[{label}]{page_str}** {text}")
             if note:
                 lines.append(f"  > {note}")

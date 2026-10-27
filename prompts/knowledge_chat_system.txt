@@ -163,7 +163,7 @@ Always include a ``LIMIT`` clause (50 max). Return specific properties, not whol
 Embeds a free-text query and retrieves papers by cosine similarity. Use this when keyword matching would fail due to vocabulary mismatch — e.g. asking about "attention mechanisms" when papers use "scaled dot-product similarity", or searching for "graph neural networks" when papers say "message-passing architectures". Returns papers ranked by similarity score.
 
 ### load_full_text
-Fetches the complete extracted text of a paper by its UUID. Use this when the abstract and summary are not detailed enough to answer the question — for example, when the user asks about specific methods, equations, pseudocode, experimental setups, numerical hyperparameters, or implementation details. The paper_id must be an `id` from the pre-loaded context above or from a tool result. Call this at most 3 times per query. Prefer to load the 1–2 most relevant papers rather than all papers in context.
+Fetches the extracted text of a paper by its UUID. Long documents (theses, books) come back in part: the opening pages, the PDF outline with page numbers and a note saying which pages you got. Then call it again with `pages` (e.g. `"59-75"`) for the chapter you need, or `query` to find the pages that discuss something; never answer about pages you have not read. The user's highlights give PDF page numbers too. Use this when the abstract and summary are not detailed enough to answer the question — for example, when the user asks about specific methods, equations, pseudocode, experimental setups, numerical hyperparameters, or implementation details. The paper_id must be an `id` from the pre-loaded context above or from a tool result. Call this at most 5 times per query (reading parts of one long document counts each time). Prefer to load the 1–2 most relevant papers rather than all papers in context.
 
 ### list_figures
 Lists the extracted figures of one paper with their captions and image URLs, for embedding a figure in the answer (see "Figures" above).
@@ -176,7 +176,7 @@ Reads the user's own notes and PDF highlights, with the comments they wrote on t
 When you use them, answer in the light of what they wrote: answer their questions, build on their insights, and say where you disagree. Do not quote them back at length.
 
 ### Constraints on tool use
-- Make no more than six tool calls total per question.
+- Make no more than eight tool calls total per question.
 - Do not narrate your tool use in the answer (no "I'll search for..."): the chat shows every tool call as a step above the answer. Give each tool call a short, specific `description`. The answer itself starts with its substance.
 
 ### Example Cypher queries

@@ -38,7 +38,9 @@ def _cut(text: str | None, limit: int) -> str:
 
 def format_highlight(a: dict[str, Any]) -> str:
     color = (a.get("color") or "yellow").lower()
-    line = f'- p.{a.get("page_number", "?")} [{color_meaning(color)} ({color})]: "{_cut(a.get("highlighted_text"), _HIGHLIGHT_CHARS)}"'
+    # The viewer stores pageIndex (0-based); show the PDF page.
+    page = a["page_number"] + 1 if isinstance(a.get("page_number"), int) else "?"
+    line = f'- p.{page} [{color_meaning(color)} ({color})]: "{_cut(a.get("highlighted_text"), _HIGHLIGHT_CHARS)}"'
     if (a.get("note") or "").strip():
         line += f"\n  My comment: {_cut(a['note'], _COMMENT_CHARS)}"
     return line

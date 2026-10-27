@@ -38,12 +38,13 @@ NOTES = [{"paper_id": "p1", "title": "Thesis", "content": "My overall thoughts."
 
 
 def test_notes_and_highlights_with_colour_meanings():
+    # Highlights store the viewer's 0-based pageIndex; the chats see PDF pages (index 12 = p.13).
     text, found = my_notes.read_my_notes(FakeDriver(HIGHLIGHTS, NOTES))
     assert found == 3
     assert "red = Question" in text  # the key
     assert "## Thesis (id: p1)" in text and "My note:\nMy overall thoughts." in text
-    assert '- p.12 [Question (red)]: "Why does the pose fail?"\n  My comment: Check against PoseBusters.' in text
-    assert '- p.30 [Key insight (yellow)]: "Physics checks matter"' in text
+    assert '- p.13 [Question (red)]: "Why does the pose fail?"\n  My comment: Check against PoseBusters.' in text
+    assert '- p.31 [Key insight (yellow)]: "Physics checks matter"' in text
     assert "more items not shown" not in text
 
 

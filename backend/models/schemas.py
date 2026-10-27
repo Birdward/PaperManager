@@ -246,6 +246,8 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     conversation_id: str | None = None
+    # PDF pages the answer had access to: {total_pages, pages_read ("1-23, 59-75"), complete}
+    coverage: dict | None = None
 
 
 # ── Knowledge Chat ──────────────────────────────────────────────────────────────

@@ -209,6 +209,7 @@ def chat_with_paper(
     paper_title: str,
     question: str,
     history: list[dict[str, Any]] | None = None,
+    my_notes: str = "",
 ) -> str:
     """Answer *question* about a paper using its full text as context.
     Claude can also search the web for related information."""
@@ -216,9 +217,11 @@ def chat_with_paper(
         title=paper_title or "(unknown)",
         text=paper_text[:60000],
     )
+    if my_notes:
+        system += "\n\n" + my_notes
     if _subscription_instead_of_key():
         from services.claude_code_chat import chat_with_paper_claude_code
-        return chat_with_paper_claude_code(paper_text, paper_title, question, history)
+        return chat_with_paper_claude_code(paper_text, paper_title, question, history, my_notes)
     client = _personal_client()
     messages: list[dict[str, Any]] = list(history or [])
     messages.append({"role": "user", "content": question})
@@ -230,6 +233,7 @@ def chat_with_paper_work(
     paper_title: str,
     question: str,
     history: list[dict[str, Any]] | None = None,
+    my_notes: str = "",
 ) -> str:
     """Answer *question* using the work/Foundry Anthropic gateway.
     Claude can also search the web for related information."""
@@ -238,6 +242,8 @@ def chat_with_paper_work(
         title=paper_title or "(unknown)",
         text=paper_text[:60000],
     )
+    if my_notes:
+        system += "\n\n" + my_notes
     messages: list[dict[str, Any]] = list(history or [])
     messages.append({"role": "user", "content": question})
     return _run_claude_with_tools(client, "claude-opus-4-6", system, messages)
@@ -248,12 +254,13 @@ def chat_with_paper_litellm(
     paper_title: str,
     question: str,
     history: list[dict[str, Any]] | None = None,
+    my_notes: str = "",
 ) -> str:
     """Answer *question* about a paper using LiteLLM (Gemma via proxy).
     Uses tool calling to allow web searches when the model supports it."""
     if not litellm_configured():
         from services.claude_code_chat import chat_with_paper_claude_code
-        return chat_with_paper_claude_code(paper_text, paper_title, question, history)
+        return chat_with_paper_claude_code(paper_text, paper_title, question, history, my_notes)
     client = get_litellm_client()
     model = settings.litellm_model
 
@@ -261,6 +268,8 @@ def chat_with_paper_litellm(
         title=paper_title or "(unknown)",
         text=paper_text[:12000],
     )
+    if my_notes:
+        system += "\n\n" + my_notes
     messages: list[dict[str, Any]] = [{"role": "system", "content": system}]
     for msg in (history or []):
         messages.append({"role": msg["role"], "content": msg["content"]})
@@ -411,7 +420,35 @@ LIST_FIGURES_TOOL: dict[str, Any] = {
     },
 }
 
-LIBRARY_TOOLS = (CYPHER_TOOL, SEMANTIC_SEARCH_TOOL, LOAD_FULL_TEXT_TOOL, LIST_FIGURES_TOOL)
+# Tool definition for reading the user's own notes and PDF highlights
+READ_MY_NOTES_TOOL: dict[str, Any] = {
+    "name": "read_my_notes",
+    "description": (
+        "Read the user's own notes on papers and their PDF highlights with the comments they "
+        "wrote on them. Highlight colours follow the user's key: yellow = Key insight, "
+        "green = Evidence, blue = Context, red = Question, purple = Follow-up. Use it when the "
+        "question refers to their notes, highlights, comments or questions (e.g. 'answer my "
+        "highlighted questions' -> colors=['red']), when it concerns a paper or passage they "
+        "have highlighted or annotated (the paper context lists them), or when their own "
+        "thoughts would make the answer more useful to them. Without paper_id it searches "
+        "the whole library."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "paper_id": {"type": "string", "description": "Only this paper (UUID id)."},
+            "colors": {
+                "type": "array",
+                "items": {"type": "string", "enum": ["yellow", "green", "blue", "red", "purple"]},
+                "description": "Only highlights of these colours (red = Question, ...).",
+            },
+            "query": {"type": "string", "description": "Only notes/highlights containing this text."},
+            "include_notes": {"type": "boolean", "description": "Include paper notes (default true)."},
+        },
+    },
+}
+
+LIBRARY_TOOLS = (CYPHER_TOOL, SEMANTIC_SEARCH_TOOL, LOAD_FULL_TEXT_TOOL, LIST_FIGURES_TOOL, READ_MY_NOTES_TOOL)
 
 # Regex to block write operations
 _CYPHER_WRITE_RE = re.compile(
@@ -620,6 +657,31 @@ def execute_library_tool(name: str, args: dict[str, Any], driver: Any) -> tuple[
         }
         return step, json.dumps(figures) if figures else "[No extracted figures for this paper]"
 
+    if name == "read_my_notes":
+        from services.my_notes import read_my_notes
+
+        text, found = "[Notes unavailable: no database connection]", 0
+        if driver:
+            try:
+                text, found = read_my_notes(
+                    driver,
+                    paper_id=args.get("paper_id") or None,
+                    colors=args.get("colors") or None,
+                    query=args.get("query") or None,
+                    include_notes=args.get("include_notes", True),
+                )
+            except Exception as exc:
+                log.warning("read_my_notes tool failed | %s", exc)
+                text = f"[Error reading notes: {exc}]"
+        step = {
+            "type": "step",
+            "kind": "notes",
+            "description": f"Reading your notes and highlights ({found} found)",
+            "cypher": None,
+            "count": found,
+        }
+        return step, text
+
     return None
 
 
@@ -658,6 +720,8 @@ def knowledge_chat_stream(
             parts.append(f"Summary: {p['summary']}")
         if p.get("_note"):
             parts.append(f"My note on this paper:\n{p['_note']}")
+        if p.get("_highlights"):
+            parts.append(f"My highlights on this paper: {p['_highlights']} (read them with read_my_notes)")
         if p.get("_conversations"):
             parts.append(f"Previous chat history about this paper:\n{p['_conversations']}")
         return "\n".join(parts)

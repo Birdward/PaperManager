@@ -36,7 +36,7 @@ Relationship types:
   (Paper)   -[:ABOUT]->       (Topic)    paper is about a topic
   (Paper)   -[:AUTHORED_BY]-> (Person)   paper has an author
   (Paper)   -[:IN_PROJECT]->  (Project)  paper belongs to a project
-  (Note)    -[:ABOUT]->       (Paper)    note belongs to a paper
+  (Paper)   -[:HAS_NOTE]->    (Note)     the paper's note
   (Note)    -[:MENTIONS]->    (Person)   note mentions a person
   (Note)    -[:MENTIONS]->    (Topic)    note mentions a topic
   (Topic)   -[:RELATED_TO]-   (Topic)    topics are related (undirected)

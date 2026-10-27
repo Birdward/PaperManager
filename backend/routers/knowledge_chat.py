@@ -28,6 +28,10 @@ router = APIRouter(prefix="/knowledge-chat", tags=["knowledge-chat"], dependenci
 
 # ── SSE helpers ────────────────────────────────────────────────────────────────
 
+# A paper's note goes into Knowledge Chat context in full up to this length, then cut.
+_NOTE_INLINE_CHARS = 1500
+
+
 def _sse(event: dict) -> str:
     return f"data: {json.dumps(event)}\n\n"
 
@@ -315,12 +319,20 @@ def _stream(body: KnowledgeChatRequest) -> Generator[str, None, None]:
     history_tokens = sum(estimate_tokens(m.content) for m in body.history)
     question_tokens = estimate_tokens(body.question)
 
-    # Enrich papers with their notes + conversation summaries
+    # Enrich papers with their notes + conversation summaries. Long notes are cut here and
+    # highlights only counted, so context stays bounded however much the reader has written;
+    # the model reads the rest with the read_my_notes tool.
+    from services.my_notes import highlight_counts
+    highlights = highlight_counts(driver, [p["id"] for p in all_papers])
     with driver.session() as session:
         for p in all_papers:
             snippets = get_paper_context_snippets(driver, p["id"])
-            if snippets.get("note"):
-                p["_note"] = snippets["note"]
+            note = (snippets.get("note") or "").strip()
+            if note:
+                p["_note"] = note if len(note) <= _NOTE_INLINE_CHARS else (
+                    note[:_NOTE_INLINE_CHARS] + f" […{len(note) - _NOTE_INLINE_CHARS} more characters: read_my_notes]")
+            if highlights.get(p["id"]):
+                p["_highlights"] = highlights[p["id"]]
             if snippets.get("conversations"):
                 conv_texts = []
                 for conv in snippets["conversations"]:

@@ -346,6 +346,7 @@ def chat_with_paper_claude_code(
     paper_title: str,
     question: str,
     history: list[dict[str, Any]] | None = None,
+    my_notes: str = "",
 ) -> str:
     """Single-paper chat on Claude Code; returns the full answer."""
     _require_available()
@@ -355,6 +356,8 @@ def chat_with_paper_claude_code(
         title=paper_title or "(unknown)",
         text=paper_text[:60000],
     )
+    if my_notes:
+        system += "\n\n" + my_notes
     prompt = _prompt(list(history or []), question)
     return "".join(
         e["text"] for e in _drive(lambda emit: _run(system, prompt, emit, True, [])) if e["type"] == "token"

@@ -251,7 +251,7 @@ export interface TokenTotals {
   limit: number;
 }
 
-export type StepKind = "cypher" | "search" | "fulltext" | "figures" | "web" | "attach";
+export type StepKind = "cypher" | "search" | "fulltext" | "figures" | "web" | "attach" | "notes";
 
 export type SseEvent =
   | { type: "step"; kind?: StepKind; description: string; cypher?: string | null; count?: number | null; papers?: MessagePaper[] }

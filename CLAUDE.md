@@ -173,6 +173,17 @@ After merging, check these, because new upstream code can silently bypass this f
 - **Upload embeddings:** `routers/papers.py` computes the embedding in step 5b, but none of
   its three save paths (`create_paper`, `merge_paper_by_doi`, stub enrichment) stored it. It is
   now `SET` right after "Paper saved". Upstream never noticed because its embedding proxy didn't work.
+- **The reader's notes and highlights in the chats** (`services/my_notes.py`, which holds the
+  colour key used by the chats and the Markdown export): paper chat appends the note and every
+  highlight with its comment to the system prompt (up to about 24k characters, long items cut).
+  Knowledge Chat gets each paper's note inline up to 1,500 characters plus highlight counts by
+  meaning, and reads the rest with the `read_my_notes` tool (filters: paper_id, colors, query;
+  about 24k characters, says what was cut). This is designed for hundreds of papers. Notes are
+  `(Paper)-[:HAS_NOTE]->(Note)`. Upstream's Knowledge Chat, prompt, Cypher assistant schema and
+  debug cleanup used a non-existent `(Note)-[:ABOUT]->(Paper)`, so the chat never saw notes.
+- **Long documents in the chats:** paper chat sends only the first 60,000 characters of
+  `raw_text` and `load_full_text` condenses only the first 80,000, both upstream limits. A
+  thesis (374k characters) is cut off around chapter 2. Not fixed yet.
 - **Figure/table numbers** keep thesis/book styles ("3.1", "B.14"); upstream kept only the first
   integer.
 - **Backups:** `./backup.sh` stops Neo4j, writes a `neo4j-admin database dump` (about 0.4 MB;

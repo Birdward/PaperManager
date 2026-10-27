@@ -1037,16 +1037,11 @@ def export_paper_markdown(paper_id: str, driver: Driver = Depends(get_driver)):
     # Highlights / Annotations
     if annotations:
         lines += ["## Highlights & Annotations", ""]
-        color_label = {
-            "yellow": "Key insight",
-            "green":  "Evidence",
-            "blue":   "Context",
-            "red":    "Question",
-            "purple": "Follow-up",
-        }
+        from services.my_notes import color_meaning
+
         for ann in annotations:
             color = ann.get("color", "yellow")
-            label = color_label.get(color, color.capitalize())
+            label = color_meaning(color)
             page = ann.get("page_number")
             text = ann.get("highlighted_text", "").strip()
             note = ann.get("note", "").strip()

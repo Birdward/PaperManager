@@ -108,7 +108,7 @@ const fmtK = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
 // ── Small pieces ─────────────────────────────────────────────────────────────
 
 const STEP_LABEL: Record<StepKind, string> = {
-  cypher: "Graph", search: "Search", fulltext: "Read", figures: "Figures", web: "Web", attach: "Attach",
+  cypher: "Graph", search: "Search", fulltext: "Read", figures: "Figures", web: "Web", attach: "Attach", notes: "Notes",
 };
 
 function StepRow({ step, onPaper }: { step: Step; onPaper: (p: MessagePaper) => void }) {

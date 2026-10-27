@@ -421,7 +421,7 @@ def get_paper_context_snippets(driver: Driver, paper_id: str) -> dict:
     with driver.session() as session:
         # Note
         note_result = session.run(
-            "MATCH (n:Note)-[:ABOUT]->(p:Paper {id: $id}) RETURN n.content AS content",
+            "MATCH (p:Paper {id: $id})-[:HAS_NOTE]->(n:Note) RETURN n.content AS content",
             id=paper_id,
         ).single()
         note = note_result["content"] if note_result else None

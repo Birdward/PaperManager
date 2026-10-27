@@ -917,7 +917,7 @@ def debug_cleanup():
         # Delete note
         with driver.session() as session:
             session.run(
-                "MATCH (n:Note)-[:ABOUT]->(p:Paper {id: $id}) DETACH DELETE n",
+                "MATCH (p:Paper {id: $id})-[:HAS_NOTE]->(n:Note) DETACH DELETE n",
                 id=paper_id,
             )
         # Delete PDF from Drive
@@ -1438,7 +1438,15 @@ def chat(paper_id: str, body: ChatRequest, x_user_name: Optional[str] = Header(N
         raise HTTPException(status_code=404, detail="Paper not found")
     raw_text = paper.get("raw_text") or ""
     history = [{"role": m.role, "content": m.content} for m in body.history]
-    kwargs = dict(paper_text=raw_text, paper_title=paper.get("title", ""), question=body.question, history=history)
+    from services.my_notes import paper_notes_block
+
+    try:
+        my_notes = paper_notes_block(driver, paper_id)
+    except Exception as exc:
+        log.warning("Could not load notes for paper chat (non-fatal) | %s", exc)
+        my_notes = ""
+    kwargs = dict(paper_text=raw_text, paper_title=paper.get("title", ""), question=body.question, history=history,
+                  my_notes=my_notes)
     if body.model in ("litellm", "ollama"):
         answer = chat_with_paper_litellm(**kwargs)
     elif body.model == "claude-work":

@@ -6,6 +6,9 @@ services:
   neo4j:
     image: neo4j:5.15
     restart: unless-stopped
+    # Safeguard without capping anyone's memory: if Docker runs out, the kernel kills the app
+    # (which restarts itself) instead of the database.
+    oom_score_adj: -500
     environment:
       - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:?set NEO4J_PASSWORD in .env}
       - NEO4J_PLUGINS=["apoc"]

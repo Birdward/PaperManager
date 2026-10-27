@@ -7,10 +7,9 @@ Fallback: regex on raw text (legacy, used when no PDF is available).
 """
 from __future__ import annotations
 
+import io
 import re
 import logging
-import os
-import tempfile
 from dataclasses import dataclass, field
 
 log = logging.getLogger(__name__)
@@ -238,16 +237,20 @@ def _merge_overcrowded_chapters(
 
 def _chapters_from_docling_document(doc) -> list[dict]:
     """Build chapter list from an in-memory DoclingDocument."""
-    from docling.datamodel.base_models import DocItemLabel
-
     total_pages = len(doc.pages) if doc.pages else 0
     log.info("Docling conversion done: %d pages", total_pages)
+    return _chapters_from_docling_items(doc.iterate_items(), total_pages)
+
+
+def _chapters_from_docling_items(items, total_pages: int) -> list[dict]:
+    """Build chapter list from DoclingDocument items in document order (one or more documents)."""
+    from docling.datamodel.base_models import DocItemLabel
 
     # Collect headings and text in document order
     raw_chapters: list[dict] = []
     current: dict | None = None
 
-    for item, _level in doc.iterate_items():
+    for item, _level in items:
         if not hasattr(item, "label"):
             continue
 
@@ -352,25 +355,24 @@ def detect_chapters_docling(pdf_bytes: bytes) -> list[dict]:
                 doc = load_document_from_response(payload)
                 return _chapters_from_docling_document(doc)
 
-        from docling.document_converter import DocumentConverter
+        import docling  # noqa: F401  (is local Docling installed?)
     except ImportError:
         log.warning("Docling not available; cannot do Docling-based detection")
         return []
 
-    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
-        f.write(pdf_bytes)
-        tmp_path = f.name
-
     try:
+        from pypdf import PdfReader
+        from services.figure_extractor import _get_converter, docling_documents
+
         log.info("Running Docling PDF conversion for chapter detection...")
-        converter = DocumentConverter()
-        result = converter.convert(tmp_path)
-        return _chapters_from_docling_document(result.document)
+        # The figure extractor's converter, so its models are loaded once per process, and in page
+        # chunks (see figure_extractor.DOCLING_CHUNK_PAGES): a whole thesis at once runs out of memory.
+        docs = docling_documents(_get_converter(), pdf_bytes)
+        items = (item for doc in docs for item in doc.iterate_items())
+        return _chapters_from_docling_items(items, len(PdfReader(io.BytesIO(pdf_bytes)).pages))
     except Exception as exc:
         log.warning("Docling conversion failed: %s", exc)
         return []
-    finally:
-        os.unlink(tmp_path)
 
 
 # ── Fallback: regex-based detection ──────────────────────────────────────────

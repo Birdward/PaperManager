@@ -174,7 +174,7 @@ export interface Figure {
 export interface PaperTable {
   id: string;
   paper_id: string;
-  table_number: number | null;
+  table_number: number | string | null;
   caption: string | null;
   markdown_content: string;
   page_number: number;

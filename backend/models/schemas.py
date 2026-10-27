@@ -313,7 +313,7 @@ class FigureOut(BaseModel):
 class TableOut(BaseModel):
     id: str
     paper_id: str
-    table_number: int | None = None
+    table_number: int | str | None = None
     caption: str | None = None
     markdown_content: str
     page_number: int

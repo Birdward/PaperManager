@@ -18,8 +18,13 @@ _MIN_HEIGHT = 80
 _MIN_BYTES = 5_000  # skip very small image data (icons, bullets)
 
 
+# Figure/table numbers as written in captions: 3, S1, and the chapter/appendix style of theses
+# and books (3.1, B.14).
+_NUMBER = r"((?:[A-Za-z]\.?)?\d+(?:\.\d+)*)"
+
+
 def _normalize_figure_number(val) -> int | str | None:
-    """Return int for 1, 2, … or str like S1 for supplementary figures."""
+    """Return int for 1, 2, … or str like S1 (supplementary), 3.1 or B.14 (thesis/book chapters)."""
     if val is None:
         return None
     if isinstance(val, int):
@@ -35,18 +40,18 @@ def _normalize_figure_number(val) -> int | str | None:
     m = re.search(r"\b[Ss](\d+)\b", s)
     if m:
         return f"S{m.group(1)}"
+    if re.fullmatch(r"[A-Za-z]\.?\d+(?:\.\d+)*|\d+(?:\.\d+)+", s):
+        return s[0].upper() + s[1:]
     return None
 
 
 # ── Docling singletons ─────────────────────────────────────────────────────────
-# Full converter: generates page + picture images — great quality, high memory.
-# Lite converter: no page images — tables only, much cheaper for large docs.
-_MAX_PAGES_FULL = 80   # PDFs with more pages use lite converter + pypdf for figures
+# Full converter: generates page + picture images. Local Docling converts long PDFs in chunks of
+# this many pages: a 177-page thesis converted in one go grew past 6.5 GB and was OOM-killed.
+DOCLING_CHUNK_PAGES = 20
 
 _converter = None
 _converter_error: str | None = None
-_lite_converter = None
-_lite_converter_error: str | None = None
 
 
 def _get_converter():
@@ -83,35 +88,6 @@ def _get_converter():
         _converter_error = f"Docling unavailable: {exc}"
         log.warning("Docling load failed (will use pypdf fallback): %s", exc)
         raise RuntimeError(_converter_error)
-
-
-def _get_lite_converter():
-    """Lite converter: no page images. Use for large PDFs (tables only, no figure images)."""
-    global _lite_converter, _lite_converter_error
-    if _lite_converter is not None:
-        return _lite_converter
-    if _lite_converter_error is not None:
-        raise RuntimeError(_lite_converter_error)
-    try:
-        from docling.document_converter import DocumentConverter
-        from docling.datamodel.base_models import InputFormat
-        from docling.datamodel.pipeline_options import PdfPipelineOptions
-        from docling.document_converter import PdfFormatOption
-
-        pipeline_options = PdfPipelineOptions()
-        pipeline_options.generate_page_images = False
-        pipeline_options.generate_picture_images = False
-
-        _lite_converter = DocumentConverter(
-            format_options={
-                InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)
-            }
-        )
-        log.info("Docling lite DocumentConverter loaded (no page images)")
-        return _lite_converter
-    except Exception as exc:
-        _lite_converter_error = f"Docling unavailable: {exc}"
-        raise RuntimeError(_lite_converter_error)
 
 
 def _count_pdf_pages(pdf_bytes: bytes) -> int:
@@ -311,7 +287,7 @@ def _collect_figures_tables_from_doc(doc, caption_method: str) -> dict:
             figure_number = None
             if caption:
                 m = re.search(
-                    r"(?:Figure|Fig\.?|FIGURE)\s+([Ss]?\d+)",
+                    r"(?:Figure|Fig\.?|FIGURE)\s+" + _NUMBER,
                     caption,
                     re.IGNORECASE,
                 )
@@ -352,9 +328,9 @@ def _collect_figures_tables_from_doc(doc, caption_method: str) -> dict:
 
             table_number = None
             if caption:
-                m = re.search(r"(?:Table|TABLE)\s+(\d+)", caption, re.IGNORECASE)
+                m = re.search(r"(?:Table|TABLE)\s+" + _NUMBER, caption, re.IGNORECASE)
                 if m:
-                    table_number = int(m.group(1))
+                    table_number = _normalize_figure_number(m.group(1))
 
             try:
                 markdown_content = item.export_to_markdown(doc)
@@ -417,18 +393,39 @@ def _extract_figures_docling(converter, pdf_bytes: bytes, caption_method: str) -
             "tables":  [{page_number, table_number, caption, markdown_content}, ...],
         }
     """
+    figures: list[dict] = []
+    tables: list[dict] = []
+    for doc in docling_documents(converter, pdf_bytes):
+        part = _collect_figures_tables_from_doc(doc, caption_method)
+        figures += part["figures"]
+        tables += part["tables"]
+    return {"figures": figures, "tables": tables}
+
+
+def docling_documents(converter, pdf_bytes: bytes):
+    """Convert *pdf_bytes* with *converter*, yielding one DoclingDocument per chunk of
+    DOCLING_CHUNK_PAGES pages so memory stays bounded however long the PDF is.
+
+    Page numbers in each document's provenance are the original PDF page numbers.
+    """
+    from services.mem import trim_memory
+
+    n_pages = _count_pdf_pages(pdf_bytes)
     tmp_path = None
     try:
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
             tmp.write(pdf_bytes)
             tmp_path = tmp.name
 
-        log.info("Docling: converting PDF (%d bytes)...", len(pdf_bytes))
-        result = converter.convert(tmp_path)
-        doc = result.document
-        log.info("Docling: conversion done, scanning for figures and tables...")
-        return _collect_figures_tables_from_doc(doc, caption_method)
-
+        if n_pages <= DOCLING_CHUNK_PAGES:
+            log.info("Docling: converting PDF (%d bytes, %d pages)...", len(pdf_bytes), n_pages)
+            yield converter.convert(tmp_path).document
+            return
+        for start in range(1, n_pages + 1, DOCLING_CHUNK_PAGES):
+            end = min(start + DOCLING_CHUNK_PAGES - 1, n_pages)
+            log.info("Docling: converting pages %d-%d of %d...", start, end, n_pages)
+            yield converter.convert(tmp_path, page_range=(start, end)).document
+            trim_memory(f"docling pages {start}-{end}")
     finally:
         if tmp_path and os.path.exists(tmp_path):
             try:
@@ -536,9 +533,6 @@ def _extract_figures_dispatch(pdf_bytes: bytes, caption_method: str) -> dict:
     if (settings.docling_mode or "").strip().lower() == "off":
         return {"figures": _extract_figures_pypdf(pdf_bytes, caption_method), "tables": []}
 
-    n_pages = _count_pdf_pages(pdf_bytes)
-    log.info("extract_figures: PDF has %d pages (threshold=%d)", n_pages, _MAX_PAGES_FULL)
-
     def _run_docling() -> dict:
         if settings.docling_serve_url.strip():
             return _extract_figures_docling_remote(
@@ -551,32 +545,12 @@ def _extract_figures_dispatch(pdf_bytes: bytes, caption_method: str) -> dict:
                 return _extract_figures_docling_remote(
                     pdf_bytes, caption_method, manager_url, via_manager_proxy=True
                 )
-        if n_pages <= _MAX_PAGES_FULL:
-            converter = _get_converter()
-            return _extract_figures_docling(converter, pdf_bytes, caption_method)
-        lite = _get_lite_converter()
-        return _extract_figures_docling(lite, pdf_bytes, caption_method)
+        return _extract_figures_docling(_get_converter(), pdf_bytes, caption_method)
 
     try:
-        if _use_on_demand_docling() or settings.docling_serve_url.strip():
-            return _run_docling()
-        if n_pages <= _MAX_PAGES_FULL:
-            return _run_docling()
-        log.info(
-            "extract_figures: large PDF (%d pages) — lite local docling + pypdf for figures",
-            n_pages,
-        )
-        tables: list[dict] = []
-        try:
-            lite = _get_lite_converter()
-            result = _extract_figures_docling(lite, pdf_bytes, caption_method)
-            tables = result.get("tables", [])
-        except Exception as exc:
-            log.warning("Docling lite extraction failed: %s", exc)
-        figures = _extract_figures_pypdf(pdf_bytes, caption_method)
-        return {"figures": figures, "tables": tables}
+        return _run_docling()
     except RuntimeError:
         log.warning("Docling unavailable, falling back to pypdf")
     except Exception as exc:
         log.warning("Docling extraction failed, falling back to pypdf: %s", exc)
-    return _extract_figures_pypdf(pdf_bytes, caption_method)
+    return {"figures": _extract_figures_pypdf(pdf_bytes, caption_method), "tables": []}

@@ -16,6 +16,7 @@ import logging
 import os
 import threading
 import time
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -40,6 +41,10 @@ def analysis_cache_key(pdf_bytes: bytes) -> str:
     return hashlib.sha256(pdf_bytes).hexdigest()
 
 
+# Identifies this app process in status files (see _read_status).
+_BOOT = uuid.uuid4().hex
+
+
 def _entry_dir(key: str) -> Path:
     return _CACHE_ROOT / key
 
@@ -61,6 +66,11 @@ def _read_status(key: str) -> dict[str, Any] | None:
         created = float(data.get("created_at", 0))
         if time.time() - created > TTL_SECONDS:
             return None
+        # A job left pending/running by an earlier process (e.g. one killed for running out of
+        # memory) will never finish; report it missing so the queue starts it again.
+        if data.get("status") in ("pending", "running") and data.get("boot") != _BOOT:
+            log.warning("Stale %s job from a previous app run | key=%s", data.get("status"), key[:12])
+            return None
         return data
     except Exception:
         return None
@@ -71,6 +81,7 @@ def _write_status(key: str, status: str, *, error: str | None = None) -> None:
     entry.mkdir(parents=True, exist_ok=True)
     payload: dict[str, Any] = {
         "status": status,
+        "boot": _BOOT,
         "created_at": time.time(),
         "updated_at": time.time(),
     }

@@ -121,7 +121,7 @@ After merging, check these, because new upstream code can silently bypass this f
   lists against `main` rather than expecting zero.
 - **Frontend tests:**
   `docker run --rm -v "$PWD/frontend":/app -w /app node:20-alpine sh -c "npm ci && npx vitest run"`.
-  `npx tsc -b` reports 3 errors in `PaperDetail.tsx` and `vite.config.ts` that came from upstream.
+  `npx tsc -b` reports 25 errors, identical on `main` (upstream's).
   The Docker build doesn't run tsc.
 - **End-to-end checks:** log in with curl, then upload `backend/tests/fixtures/attention.pdf` (a
   one-page stub). Delete any test papers and conversations afterwards, since this is Edward's real
@@ -161,6 +161,17 @@ After merging, check these, because new upstream code can silently bypass this f
   `down -v`. `papermanager_hf_cache` (Docling models, ~0.5 GB) and
   `papermanager_ollama_models` can be re-downloaded. The ingest preprocess cache in `/tmp` is
   disposable.
+- **Long PDFs and memory:** local Docling converts PDFs in chunks of
+  `figure_extractor.DOCLING_CHUNK_PAGES` (20) pages via `docling_documents()`, for figures and
+  chapter detection alike, which share one converter. A 177-page thesis converted in one go grew
+  past 6.5 GB and was OOM-killed. Chunked, it peaks around 4.6 GB (figures) to 5.5 GB (figures,
+  then chapters in the same process), and page numbers stay the original PDF pages (verified on
+  the thesis). Job status files in the preprocess and analysis caches carry a per-process `boot`
+  id: a `pending`/`running` job from an earlier process counts as `missing`, so the queue restarts
+  it instead of spinning forever. Neo4j has `oom_score_adj: -500` so an OOM kills the app, which
+  restarts, rather than the database. There is no memory cap, by Edward's choice.
+- **Figure/table numbers** keep thesis/book styles ("3.1", "B.14"); upstream kept only the first
+  integer.
 - **Backups:** `./backup.sh` stops Neo4j, writes a `neo4j-admin database dump` (about 0.4 MB;
   the volume's ~0.5 GB is mostly preallocated transaction logs) to
   `~/Documents/PaperManager-backups` (synced by Edward's Documents backup), keeps the newest 5,

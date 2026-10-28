@@ -257,6 +257,8 @@ export type SseEvent =
   | { type: "step"; kind?: StepKind; description: string; cypher?: string | null; count?: number | null; papers?: MessagePaper[] }
   | { type: "status"; text: string }
   | { type: "context"; papers: ContextPaper[]; token_totals: TokenTotals }
+  // Claude Code's report after the answer: the largest prompt sent (with what tools read), its window
+  | { type: "context_used"; tokens: number; window: number | null; model: string | null }
   | { type: "conversation"; conversation_id: string; user_message_id: string }
   | { type: "token"; text: string }
   | { type: "done"; conversation_id: string; message_id: string }

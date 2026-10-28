@@ -20,7 +20,7 @@ from db.queries.conversations import (
     set_branch_label_if_empty, set_message_error,
 )
 from models.schemas import KnowledgeChatRequest, ConversationOut, MessageOut
-from services.ai import knowledge_chat_stream, estimate_tokens, summarize_paper, CONTEXT_WINDOW
+from services.ai import knowledge_chat_stream, estimate_tokens, summarize_paper, context_window_for
 from services.auth import get_current_user
 
 log = logging.getLogger(__name__)
@@ -381,7 +381,7 @@ def _stream(body: KnowledgeChatRequest) -> Generator[str, None, None]:
             "history": history_tokens,
             "question": question_tokens,
             "total": total_tokens,
-            "limit": CONTEXT_WINDOW,
+            "limit": context_window_for(body.model),
         },
     })
 

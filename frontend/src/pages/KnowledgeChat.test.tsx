@@ -76,6 +76,25 @@ describe("KnowledgeChat page", () => {
     expect(await screen.findByText(/Making concept cards from this answer/)).toBeInTheDocument();
   });
 
+  it("shows an estimate against the 1M window, then Claude's reported size", async () => {
+    api.streamKnowledgeChat.mockReturnValue(events([
+      { type: "context", papers: [{ id: "p1", title: "Thesis", tokens: 20000, color: "#000" }],
+        token_totals: { system: 2000, papers: 20000, history: 0, question: 100, total: 22100, limit: 1_000_000 } },
+      { type: "conversation", conversation_id: "c1", user_message_id: "u1" },
+      { type: "token", text: "Answer." },
+      { type: "context_used", tokens: 190_000, window: 1_000_000, model: "claude-opus-5-5" },
+      { type: "done", conversation_id: "c1", message_id: "a1" },
+    ]));
+    render(<MemoryRouter><KnowledgeChat /></MemoryRouter>);
+    ask("What does chapter 4 find?");
+    await screen.findByText("✦ Visualise");
+    const num = document.querySelector(".kc-context-num")!;
+    expect(num.textContent).toMatch(/^190\.0k \/ 1M · 19\.0%$/);  // real figure, no "≈"
+    expect(num.getAttribute("title")).toMatch(/claude-opus-5-5/);
+    fireEvent.click(num);
+    expect(screen.getByText("Read during answer")).toBeInTheDocument();
+  });
+
   it("opens a cited paper in the preview pane", async () => {
     api.streamKnowledgeChat.mockReturnValue(events([{ type: "token", text: ANSWER }, { type: "done", conversation_id: "c1", message_id: "a1" }]));
     render(<MemoryRouter><KnowledgeChat /></MemoryRouter>);

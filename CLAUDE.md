@@ -214,6 +214,11 @@ After merging, check these, because new upstream code can silently bypass this f
   chats use PDF page numbers while theses print their own. Highlights store the viewer's 0-based
   `pageIndex`, so the chats and the export show `page_number + 1`.
 - **Paper chat runs on Opus 5.5** (`claude-opus-5-5`, 1M window) through `chat_with_paper_claude_code`.
+- **Knowledge Chat's context bar** starts from an estimate against `context_window_for(model)`
+  (1M for Claude Code; the API path's `CONTEXT_WINDOW` is still 200k for Opus 4.6). After the
+  answer, Claude Code's real report arrives as a `context_used` SSE event (largest prompt
+  including tool reads, window, model), and the bar switches to it, with a "Read during answer"
+  segment. Upstream showed only the 200k estimate.
 - **Figure/table numbers** keep thesis/book styles ("3.1", "B.14"); upstream kept only the first
   integer.
 - **Backups:** `./backup.sh` stops Neo4j, writes a `neo4j-admin database dump` (about 0.4 MB;

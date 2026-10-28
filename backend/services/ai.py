@@ -342,7 +342,17 @@ chat_with_paper_ollama = chat_with_paper_litellm
 
 # ── Knowledge Chat (cross-library, streaming) ─────────────────────────────────
 
-CONTEXT_WINDOW = 200_000  # Claude Opus 4.6 token limit
+CONTEXT_WINDOW = 200_000  # Claude Opus 4.6 token limit (the API-key path)
+# Claude Code's "opus" (Opus 5.5) reports a 1M-token window; the real figure arrives with the
+# answer as a context_used event.
+CLAUDE_CODE_CONTEXT_WINDOW = 1_000_000
+
+
+def context_window_for(model: str) -> int:
+    """Window shown in Knowledge Chat's context bar before Claude reports the real one."""
+    if model == "claude-code" or (model == "claude" and _subscription_instead_of_key()):
+        return CLAUDE_CODE_CONTEXT_WINDOW
+    return CONTEXT_WINDOW
 
 # Tool definition for live Cypher queries
 CYPHER_TOOL: dict[str, Any] = {

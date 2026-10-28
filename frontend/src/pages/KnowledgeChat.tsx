@@ -103,7 +103,8 @@ const STARTERS = [
   { label: "Map the library", text: "Which research topics are best covered in my library, and which recent papers stand out in each?" },
 ];
 
-const fmtK = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
+const fmtK = (n: number) =>
+  n >= 1_000_000 ? `${+(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
 
 // ── Small pieces ─────────────────────────────────────────────────────────────
 
@@ -139,18 +140,25 @@ function StepRow({ step, onPaper }: { step: Step; onPaper: (p: MessagePaper) => 
   );
 }
 
-function ContextStrip({ totals, papers, answerTokens, onPaper }: {
-  totals: TokenTotals | null; papers: ContextPaper[]; answerTokens: number; onPaper: (p: MessagePaper) => void;
+type ContextUsed = { tokens: number; window: number | null; model: string | null };
+
+function ContextStrip({ totals, used: reported, papers, answerTokens, onPaper }: {
+  totals: TokenTotals | null; used: ContextUsed | null; papers: ContextPaper[]; answerTokens: number; onPaper: (p: MessagePaper) => void;
 }) {
   const [open, setOpen] = useState(false);
   if (!totals) return null;
-  const limit = totals.limit || 200_000;
-  const used = totals.total + answerTokens;
+  // Before the answer the totals are estimates; afterwards Claude reports the real prompt size
+  // (including what its tools read) and the model's window.
+  const limit = reported?.window || totals.limit || 1_000_000;
+  const estimate = totals.total + answerTokens;
+  const used = reported ? Math.max(reported.tokens, totals.total) + answerTokens : estimate;
+  const readByTools = reported ? Math.max(0, reported.tokens - totals.total) : 0;
   const segs = [
     { label: "System prompt", tokens: totals.system, color: "#c4b5fd" },
     { label: `${papers.length} papers`, tokens: totals.papers, color: "#7c3aed" },
     { label: "Conversation", tokens: totals.history, color: "#38bdf8" },
     { label: "Question", tokens: totals.question, color: "#34d399" },
+    { label: "Read during answer", tokens: readByTools, color: "#94a3b8" },
     { label: "Answer", tokens: answerTokens, color: "#fbbf24" },
   ].filter((s) => s.tokens > 0);
   return (
@@ -161,7 +169,9 @@ function ContextStrip({ totals, papers, answerTokens, onPaper }: {
         <span className="kc-context-bar">
           {segs.map((s) => <i key={s.label} style={{ width: `${Math.max(0.4, (100 * s.tokens) / limit)}%`, background: s.color }} />)}
         </span>
-        <span className="kc-context-num">{fmtK(used)} / {fmtK(limit)} · {((100 * used) / limit).toFixed(1)}%</span>
+        <span className="kc-context-num" title={reported ? `As reported by Claude${reported.model ? ` (${reported.model})` : ""}` : "Estimate until the answer arrives"}>
+          {reported ? "" : "≈"}{fmtK(used)} / {fmtK(limit)} · {((100 * used) / limit).toFixed(1)}%
+        </span>
         <span className="kc-chev">{open ? "▾" : "▸"}</span>
       </button>
       {open && (
@@ -291,6 +301,7 @@ export default function KnowledgeChat() {
   const [draft, setDraft] = useState<{ text: string; n: number } | undefined>();
   const [preview, setPreview] = useState<Preview | null>(null);
   const [totals, setTotals] = useState<TokenTotals | null>(null);
+  const [contextUsed, setContextUsed] = useState<ContextUsed | null>(null);
   const [contextPapers, setContextPapers] = useState<ContextPaper[]>([]);
   const [answerTokens, setAnswerTokens] = useState(0);
   const [compacting, setCompacting] = useState(false);
@@ -360,7 +371,7 @@ export default function KnowledgeChat() {
       .catch(() => {});
   };
 
-  const resetView = () => { setTotals(null); setContextPapers([]); setAnswerTokens(0); setStatus(""); };
+  const resetView = () => { setTotals(null); setContextUsed(null); setContextPapers([]); setAnswerTokens(0); setStatus(""); };
 
   const openConversation = async (c: Conversation) => {
     if (running) return;
@@ -432,8 +443,11 @@ export default function KnowledgeChat() {
           patchAnswer((it) => it.key === key, (it) => ({ steps: [...it.steps, step] }));
         } else if (ev.type === "context") {
           setTotals(ev.token_totals);
+          setContextUsed(null);
           setContextPapers(ev.papers);
           patchAnswer((it) => it.key === key, () => ({ papers: ev.papers.map((p) => ({ id: p.id, title: p.title, year: p.year })) }));
+        } else if (ev.type === "context_used") {
+          setContextUsed({ tokens: ev.tokens, window: ev.window, model: ev.model });
         } else if (ev.type === "conversation") {
           convId = ev.conversation_id;
           userMessageId = ev.user_message_id;
@@ -557,7 +571,7 @@ export default function KnowledgeChat() {
             )}
             <span className="kc-model-pill" title="Model of the next answer">{CHAT_MODEL_LABEL}</span>
           </header>
-          <ContextStrip totals={totals} papers={contextPapers} answerTokens={answerTokens} onPaper={openPaper} />
+          <ContextStrip totals={totals} used={contextUsed} papers={contextPapers} answerTokens={answerTokens} onPaper={openPaper} />
 
           <div className="kc-scroll" ref={scroller} onScroll={onScroll}>
             <div className={`thread ${items.length ? "with-lane" : ""}`} ref={thread}>

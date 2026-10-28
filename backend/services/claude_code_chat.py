@@ -243,7 +243,8 @@ def knowledge_chat_claude_code(
         tools = [library_tool(t) for t in LIBRARY_TOOLS] if driver else []
         await _run(system, _prompt(history, question), emit, use_web, tools)
 
-    yield from (e for e in _drive(run) if e["type"] != "context")
+    # Claude Code's report of the largest prompt, the model and its window, for the context bar.
+    yield from ({**e, "type": "context_used"} if e["type"] == "context" else e for e in _drive(run))
 
 
 def run_structured_claude_code(

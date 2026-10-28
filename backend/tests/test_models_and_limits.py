@@ -46,3 +46,11 @@ def test_litellm_keeps_its_small_caps(monkeypatch):
     monkeypatch.setattr(settings, "litellm_endpoint", "")
     from services.paper_pages import INLINE_CHARS
     assert ai._text_limit(24000) == INLINE_CHARS and ai._text_limit(15000, 120_000) == 120_000
+
+
+def test_knowledge_chat_window_is_claude_codes(monkeypatch):
+    # "claude" runs on Claude Code when the user has no API key; patched so no database is needed.
+    monkeypatch.setattr(ai, "_subscription_instead_of_key", lambda: True)
+    assert ai.context_window_for("claude-code") == 1_000_000
+    assert ai.context_window_for("claude") == 1_000_000      # no key: runs on Claude Code
+    assert ai.context_window_for("claude-work") == ai.CONTEXT_WINDOW

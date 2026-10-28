@@ -161,10 +161,18 @@ async def _run(
         yield {"type": "user", "message": {"role": "user", "content": prompt}}
 
     written: list[str] = []
+    prompt_tokens, model = 0, None
     async for message in query(prompt=messages(), options=options):
         if isinstance(message, StreamEvent):
             event = message.event
-            if event.get("type") == "content_block_start" and event.get("content_block", {}).get("type") == "text":
+            if event.get("type") == "message_start":
+                # Each API call's prompt (cached or not) is what fills the context window.
+                msg = event.get("message", {})
+                u = msg.get("usage", {})
+                prompt_tokens = max(prompt_tokens, sum(u.get(k, 0) for k in (
+                    "input_tokens", "cache_creation_input_tokens", "cache_read_input_tokens")))
+                model = msg.get("model") or model
+            elif event.get("type") == "content_block_start" and event.get("content_block", {}).get("type") == "text":
                 if written:
                     # A reply stopped mid-card (safety refusal, then the CLI's fallback model
                     # continues) leaves its fence open; close it so the rest renders.
@@ -179,6 +187,9 @@ async def _run(
         elif isinstance(message, ResultMessage) and message.is_error:
             detail = "; ".join(message.errors or []) or message.result or message.subtype
             raise RuntimeError(f"Claude Code failed: {detail}")
+        elif isinstance(message, ResultMessage):
+            window = ((message.model_usage or {}).get(model) or {}).get("contextWindow")
+            emit({"type": "context", "tokens": prompt_tokens, "window": window, "model": model})
 
 
 def _drive(run: Callable[[Callable[[dict[str, Any]], None]], Awaitable[None]]) -> Generator[dict[str, Any], None, None]:
@@ -232,7 +243,7 @@ def knowledge_chat_claude_code(
         tools = [library_tool(t) for t in LIBRARY_TOOLS] if driver else []
         await _run(system, _prompt(history, question), emit, use_web, tools)
 
-    yield from _drive(run)
+    yield from (e for e in _drive(run) if e["type"] != "context")
 
 
 def run_structured_claude_code(
@@ -348,11 +359,13 @@ def chat_with_paper_claude_code(
     history: list[dict[str, Any]] | None = None,
     my_notes: str = "",
     document: Any = None,
+    context: dict[str, Any] | None = None,
 ) -> str:
     """Single-paper chat on Claude Code; returns the full answer.
 
     With a long *document* (services.paper_pages.PaperDocument) the model gets its opening pages
-    and outline, plus read_pages and search_paper tools for the rest.
+    and outline, plus read_pages and search_paper tools for the rest. *context*, when given, is
+    filled with the largest prompt sent (tokens), the model and its context window.
     """
     _require_available()
     from services.ai import _load_prompt
@@ -387,4 +400,10 @@ def chat_with_paper_claude_code(
             tools = [read_pages, search_paper]
         await _run(system, prompt, emit, True, tools)
 
-    return "".join(e["text"] for e in _drive(run) if e["type"] == "token")
+    answer = []
+    for e in _drive(run):
+        if e["type"] == "token":
+            answer.append(e["text"])
+        elif e["type"] == "context" and context is not None:
+            context.update({k: e[k] for k in ("tokens", "window", "model")})
+    return "".join(answer)

@@ -86,3 +86,37 @@ def test_complete_claude_code_sends_image_and_allows_web(monkeypatch):
 
     claude_code_chat.complete_claude_code("s", "plain")
     assert seen["content"] == "plain" and seen["tools"] == []
+
+
+def test_run_reports_prompt_size_model_and_window(monkeypatch):
+    """The largest prompt across the turns, the model and its context window come back as one event."""
+    import asyncio
+
+    import claude_agent_sdk
+    from services import claude_code_chat
+
+    class FakeStreamEvent:
+        def __init__(self, event):
+            self.event = event
+
+    class FakeResult:
+        is_error = False
+        model_usage = {"claude-opus-5-5": {"contextWindow": 1_000_000}}
+
+    def start(inp, cached):
+        return FakeStreamEvent({"type": "message_start", "message": {
+            "model": "claude-opus-5-5",
+            "usage": {"input_tokens": inp, "cache_read_input_tokens": cached, "cache_creation_input_tokens": 0}}})
+
+    async def fake_query(prompt, options):
+        yield start(90_000, 0)       # first turn
+        yield start(500, 95_000)     # after a tool call: mostly cached, larger in total
+        yield FakeResult()
+
+    monkeypatch.setattr(claude_agent_sdk, "StreamEvent", FakeStreamEvent)
+    monkeypatch.setattr(claude_agent_sdk, "ResultMessage", FakeResult)
+    monkeypatch.setattr(claude_agent_sdk, "query", fake_query)
+
+    events: list[dict] = []
+    asyncio.run(claude_code_chat._run("system", "q", events.append, False, []))
+    assert events[-1] == {"type": "context", "tokens": 95_500, "window": 1_000_000, "model": "claude-opus-5-5"}

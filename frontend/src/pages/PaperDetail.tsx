@@ -8,7 +8,7 @@ import ChatPanel from "../components/ChatPanel";
 import EditPaperModal from "../components/EditPaperModal";
 import BookChapters from "../components/BookChapters";
 import PdfAnnotator from "../components/PdfAnnotator";
-import type { PdfAnnotatorHandle, ConceptMark } from "../components/PdfAnnotator";
+import type { PdfAnnotatorHandle, ConceptMark, PdfPageInfo } from "../components/PdfAnnotator";
 import ConceptsPanel from "../components/concepts/ConceptsPanel";
 import TourPanel, { type TourStop } from "../components/TourPanel";
 import { SpecialZoomLevel } from "@react-pdf-viewer/core";
@@ -87,6 +87,8 @@ export default function PaperDetail() {
 
   // PDF annotations + zoom (lifted for the legend bar and sidebar panel)
   const pdfRef = useRef<PdfAnnotatorHandle>(null);
+  // The page in view, for the toolbar: PDF page numbers are what the chats and their warnings use.
+  const [pdfPage, setPdfPage] = useState<PdfPageInfo | null>(null);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [pdfScale, setPdfScale] = useState<number | SpecialZoomLevel>(SpecialZoomLevel.PageWidth);
   const resolvedScale = useRef<number>(1);
@@ -1430,6 +1432,14 @@ export default function PaperDetail() {
                     </span>
                   ))}
                 </div>
+                {pdfPage && (
+                  <span className="shrink-0 ml-auto tabular-nums text-gray-500" data-testid="pdf-page-indicator">
+                    PDF page {pdfPage.page} / {pdfPage.total}
+                    {pdfPage.label && pdfPage.label !== String(pdfPage.page) && (
+                      <span className="text-gray-400"> · printed {pdfPage.label}</span>
+                    )}
+                  </span>
+                )}
                 {/* Zoom control */}
                 <div className="flex items-center gap-1 shrink-0 ml-auto">
                   <button
@@ -1459,6 +1469,7 @@ export default function PaperDetail() {
                 scale={pdfScale}
                 initialPage={pdfInitialPage}
                 onScaleResolved={(s) => { resolvedScale.current = s; }}
+                onPageInfo={setPdfPage}
                 conceptMarks={conceptMarks}
                 onConceptClick={(cid) => {
                   if (cid.startsWith("tour-")) { setActiveStop(Number(cid.slice(5))); return; }

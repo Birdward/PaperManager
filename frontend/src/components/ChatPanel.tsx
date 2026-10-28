@@ -4,7 +4,7 @@ import { mdPlugins } from "../lib/markdown";
 import {
   listPaperConversations, getPaperConversationMessages,
   renamePaperConversation, compactPaperConversation,
-  deletePaperConversation, chatWithPaper, type PaperChatCoverage,
+  deletePaperConversation, chatWithPaper, type PaperChatCoverage, type PaperChatContext,
 } from "../api/client";
 import type { Conversation, KnowledgeMessage } from "../types";
 import { CHAT_MODEL_LABELS, useChatModels, type ChatModel } from "../lib/chatModels";
@@ -24,6 +24,8 @@ export default function ChatPanel({ paperId }: Props) {
   // Pages each fresh answer could see, by answer text (a new conversation reloads its messages
   // from the server with new ids); shown when a long paper was read in part.
   const [coverage, setCoverage]           = useState<Record<string, PaperChatCoverage>>({});
+  // Size of the last request in each conversation, as reported by Claude (paper + notes + chat).
+  const [sentByConv, setSentByConv]       = useState<Record<string, PaperChatContext>>({});
   const [input, setInput]                 = useState("");
   const [loading, setLoading]             = useState(false);
   const [loadingMsgs, setLoadingMsgs]     = useState(false);
@@ -95,6 +97,8 @@ export default function ChatPanel({ paperId }: Props) {
       };
       setMessages((prev) => [...prev, assistantMsg]);
       if (res.coverage) setCoverage((prev) => ({ ...prev, [res.answer]: res.coverage! }));
+      const convId = activeConvId ?? res.conversation_id;
+      if (res.context && convId) setSentByConv((prev) => ({ ...prev, [convId]: res.context! }));
 
       // If this was a new conversation, update the list
       if (!activeConvId && res.conversation_id) {
@@ -262,12 +266,14 @@ export default function ChatPanel({ paperId }: Props) {
     .filter((m) => m.role !== "system")
     .reduce((acc, m) => acc + Math.ceil(m.content.length / 4), 0);
 
-  const contextPercent = Math.min(100, Math.round((estimatedTokens / 100000) * 100));
+  // The real size of the last request when Claude reported it; otherwise only the messages are known.
+  const sent = activeConvId ? sentByConv[activeConvId] : undefined;
+  const contextPercent = sent?.window ? Math.min(100, Math.round((sent.tokens / sent.window) * 1000) / 10) : null;
   const contextColor =
-    contextPercent >= 75 ? "bg-red-400" : contextPercent >= 45 ? "bg-amber-400" : "bg-violet-400";
+    (contextPercent ?? 0) >= 75 ? "bg-red-400" : (contextPercent ?? 0) >= 45 ? "bg-amber-400" : "bg-violet-400";
 
   const fmtTokens = (n: number) =>
-    n >= 1000 ? `${(n / 1000).toFixed(1)}k` : `${n}`;
+    n >= 1_000_000 ? `${+(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${(n / 1000).toFixed(1)}k` : `${n}`;
 
   // ── Active conversation view ───────────────────────────────────────────────
   return (
@@ -327,19 +333,33 @@ export default function ChatPanel({ paperId }: Props) {
         <div className="shrink-0 rounded-md border border-gray-100 bg-gray-50 px-2.5 py-1.5 text-[10px] text-gray-500 space-y-1">
           <div className="flex items-center justify-between">
             <span>
-              Context: <span className="font-medium text-gray-700">{fmtTokens(estimatedTokens)} tokens</span>
+              Context:{" "}
+              {sent ? (
+                <span className="font-medium text-gray-700">
+                  {fmtTokens(sent.tokens)}{sent.window ? ` / ${fmtTokens(sent.window)}` : ""} tokens
+                </span>
+              ) : (
+                <span className="font-medium text-gray-700">≈{fmtTokens(estimatedTokens)} tokens of messages</span>
+              )}
               {" · "}{messages.filter((m) => m.role !== "system").length} messages
+              {sent?.model && <span>{" · "}{sent.model}</span>}
               {activeConv?.compacted && <span className="ml-1 text-amber-600 font-medium">· compacted</span>}
             </span>
-            <span className="text-[9px] text-gray-400">{contextPercent}%</span>
+            {contextPercent !== null && <span className="text-[9px] text-gray-400">{contextPercent}%</span>}
           </div>
-          <div className="h-1 w-full rounded-full bg-gray-200 overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all ${contextColor}`}
-              style={{ width: `${contextPercent}%` }}
-            />
-          </div>
-          <p className="text-[9px] text-gray-400">Paper full text is always included as context</p>
+          {contextPercent !== null && (
+            <div className="h-1 w-full rounded-full bg-gray-200 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${contextColor}`}
+                style={{ width: `${Math.max(contextPercent, 0.5)}%` }}
+              />
+            </div>
+          )}
+          <p className="text-[9px] text-gray-400">
+            {sent
+              ? "The last question as sent to Claude: the paper, your notes and highlights, and this conversation"
+              : "The paper and your notes are sent too; the full size shows after the next answer"}
+          </p>
         </div>
       )}
 

@@ -182,14 +182,22 @@ After merging, check these, because new upstream code can silently bypass this f
   `(Paper)-[:HAS_NOTE]->(Note)`. Upstream's Knowledge Chat, prompt, Cypher assistant schema and
   debug cleanup used a non-existent `(Note)-[:ABOUT]->(Paper)`, so the chat never saw notes.
 - **Long documents in the chats** (`services/paper_pages.py`): a paper's text comes from its PDF
-  page by page (pypdf, cached per file) with the PDF's bookmarks as an outline. Up to 100k
-  characters go to paper chat whole. Beyond that, it gets the opening pages, the outline and a
-  note on what's missing, plus `read_pages` / `search_paper` tools (Claude Code path). Knowledge
-  Chat's `load_full_text` takes `pages` / `query`, and for long documents returns the opening and
-  outline with a "⚠ partial" step. Paper chat returns `coverage` (pages read), and `ChatPanel`
-  shows an amber warning under answers that didn't see the whole document. Highlights store the
-  viewer's 0-based `pageIndex`, so the chats and the export show `page_number + 1`. Figures and
-  tables are already 1-based.
+  page by page (pypdf, cached per file) with the PDF's bookmarks as an outline. Paper chat gets
+  documents up to `INLINE_CHARS` (480k characters) whole. That is ~120k tokens of prose, but the
+  thesis (374k characters) was 169k tokens. Edward chose to keep the thesis whole (17% of Opus
+  5.5's 1M window). Larger documents get the opening pages, the outline and a note, plus
+  `read_pages` / `search_paper` tools (Claude Code path). Knowledge Chat's `load_full_text` takes
+  `pages` / `query`, and for long documents returns the opening and outline with a "⚠ partial"
+  step. Paper chat returns `coverage` (PDF pages read), and `ChatPanel` shows an amber warning
+  under answers that didn't see the whole document. It also returns `context` (largest prompt
+  in tokens, the model, its window, from Claude Code's `message_start` / `model_usage`), which the
+  ChatPanel meter shows. Before, the meter only counted chat messages against a fixed 100k. The
+  PDF toolbar shows "PDF page N / total · printed X" (pdf.js page labels), because warnings and
+  chats use PDF page numbers while theses print their own. Highlights store the viewer's 0-based
+  `pageIndex`, so the chats and the export show `page_number + 1`.
+- **Paper chat runs on Opus 5.5** (`claude-opus-5-5`, 1M window) for the "Claude", "Claude Code"
+  and "Gemma" options alike: without an API key or LiteLLM they all reach
+  `chat_with_paper_claude_code`. "Claude (Work)" needs a work API key and fails.
 - **Figure/table numbers** keep thesis/book styles ("3.1", "B.14"); upstream kept only the first
   integer.
 - **Backups:** `./backup.sh` stops Neo4j, writes a `neo4j-admin database dump` (about 0.4 MB;

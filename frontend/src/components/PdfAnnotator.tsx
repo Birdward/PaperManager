@@ -55,7 +55,11 @@ interface Props {
   /** Concepts to mark on the pages; located by their anchor text. */
   conceptMarks?: ConceptMark[];
   onConceptClick?: (conceptId: string) => void;
+  /** The page in view: 1-based PDF page, page count, and the printed label when the PDF has one. */
+  onPageInfo?: (info: PdfPageInfo) => void;
 }
+
+export interface PdfPageInfo { page: number; total: number; label: string | null }
 
 export interface ConceptMark {
   id: string;
@@ -77,7 +81,7 @@ export interface PdfAnnotatorHandle {
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
-const PdfAnnotator = forwardRef<PdfAnnotatorHandle, Props>(function PdfAnnotator({ paperId, pdfUrl, onHighlightsChange, onScaleResolved, scale = SpecialZoomLevel.PageWidth, initialPage = 0, conceptMarks, onConceptClick }, ref) {
+const PdfAnnotator = forwardRef<PdfAnnotatorHandle, Props>(function PdfAnnotator({ paperId, pdfUrl, onHighlightsChange, onScaleResolved, scale = SpecialZoomLevel.PageWidth, initialPage = 0, conceptMarks, onConceptClick, onPageInfo }, ref) {
   const [highlights, setHighlights] = useState<Annotation[]>([]);
   const [activeAnnotation, setActiveAnnotation] = useState<Annotation | null>(null);
   const [tooltipPos, setTooltipPos] = useState<TooltipPos | null>(null);
@@ -109,6 +113,16 @@ const PdfAnnotator = forwardRef<PdfAnnotatorHandle, Props>(function PdfAnnotator
 
   // ── Concept marks: anchor text → highlight areas ─────────────────────────
   const [pdfDoc, setPdfDoc] = useState<PdfJs.PdfDocument | null>(null);
+  // Printed page labels (e.g. "xii", "47") when the PDF defines them; pdf.js has getPageLabels,
+  // react-pdf-viewer's type doesn't declare it.
+  const [pageLabels, setPageLabels] = useState<string[] | null>(null);
+  useEffect(() => {
+    const doc = pdfDoc as unknown as { getPageLabels?: () => Promise<string[] | null> } | null;
+    doc?.getPageLabels?.().then(setPageLabels).catch(() => setPageLabels(null));
+  }, [pdfDoc]);
+  useEffect(() => {
+    if (pdfDoc) onPageInfo?.({ page: currentPage + 1, total: pdfDoc.numPages, label: pageLabels?.[currentPage] ?? null });
+  }, [pdfDoc, currentPage, pageLabels, onPageInfo]);
   const [conceptAreas, setConceptAreas] = useState<Record<string, HighlightArea[]>>({});
   const pageTextCache = useRef(new Map<number, Promise<{ items: TextItemLike[]; viewport: PdfJs.ViewPort }>>());
 

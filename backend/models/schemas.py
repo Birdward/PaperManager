@@ -248,6 +248,8 @@ class ChatResponse(BaseModel):
     conversation_id: str | None = None
     # PDF pages the answer had access to: {total_pages, pages_read ("1-23, 59-75"), complete}
     coverage: dict | None = None
+    # The request as Claude saw it: {tokens (largest prompt), window, model}; Claude Code paths only
+    context: dict | None = None
 
 
 # ── Knowledge Chat ──────────────────────────────────────────────────────────────

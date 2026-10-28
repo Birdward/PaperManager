@@ -15,9 +15,11 @@ from functools import lru_cache
 
 log = logging.getLogger(__name__)
 
-# Characters of a paper given to a chat up front (about 25k tokens): whole normal papers, the
-# start of a thesis.
-INLINE_CHARS = 100_000
+# Characters of a paper given to the paper chat up front. Tokens per character vary: prose is ~4
+# characters a token, but the 374k-character thesis (numbers, tables, chemistry) was 169k tokens. So
+# this is ~120k tokens of prose and ~200k of dense text: normal papers and a thesis go in whole
+# (Opus 5.5 has a 1M-token window); only larger books are read in part.
+INLINE_CHARS = 480_000
 # Characters one read_pages call may return.
 READ_CHARS = 60_000
 _OUTLINE_CHARS = 6_000

@@ -221,6 +221,7 @@ def chat_with_paper(
     history: list[dict[str, Any]] | None = None,
     my_notes: str = "",
     document: Any = None,
+    context: dict[str, Any] | None = None,
 ) -> str:
     """Answer *question* about a paper using its full text as context.
     Claude can also search the web for related information."""
@@ -232,7 +233,7 @@ def chat_with_paper(
         system += "\n\n" + my_notes
     if _subscription_instead_of_key():
         from services.claude_code_chat import chat_with_paper_claude_code
-        return chat_with_paper_claude_code(paper_text, paper_title, question, history, my_notes, document)
+        return chat_with_paper_claude_code(paper_text, paper_title, question, history, my_notes, document, context)
     client = _personal_client()
     messages: list[dict[str, Any]] = list(history or [])
     messages.append({"role": "user", "content": question})
@@ -268,12 +269,13 @@ def chat_with_paper_litellm(
     history: list[dict[str, Any]] | None = None,
     my_notes: str = "",
     document: Any = None,
+    context: dict[str, Any] | None = None,
 ) -> str:
     """Answer *question* about a paper using LiteLLM (Gemma via proxy).
     Uses tool calling to allow web searches when the model supports it."""
     if not litellm_configured():
         from services.claude_code_chat import chat_with_paper_claude_code
-        return chat_with_paper_claude_code(paper_text, paper_title, question, history, my_notes, document)
+        return chat_with_paper_claude_code(paper_text, paper_title, question, history, my_notes, document, context)
     client = get_litellm_client()
     model = settings.litellm_model
 

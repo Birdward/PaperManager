@@ -722,6 +722,8 @@ export async function deletePaperConversation(paperId: string, convId: string): 
 
 /** PDF pages a paper-chat answer had access to (long documents are read in part). */
 export interface PaperChatCoverage { total_pages: number; pages_read: string; complete: boolean }
+/** The request as Claude saw it: largest prompt sent (tokens), the model's context window and the model. */
+export interface PaperChatContext { tokens: number; window: number | null; model: string | null }
 
 export async function chatWithPaper(
   paperId: string,
@@ -729,7 +731,7 @@ export async function chatWithPaper(
   history: { role: string; content: string }[],
   model: string,
   conversationId?: string,
-): Promise<{ answer: string; conversation_id: string; coverage?: PaperChatCoverage | null }> {
+): Promise<{ answer: string; conversation_id: string; coverage?: PaperChatCoverage | null; context?: PaperChatContext | null }> {
   return apiFetch(`/papers/${paperId}/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

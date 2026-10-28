@@ -1448,16 +1448,17 @@ def chat(paper_id: str, body: ChatRequest, x_user_name: Optional[str] = Header(N
     from services.paper_pages import PaperDocument
 
     document = PaperDocument.for_paper(paper) if raw_text or paper.get("drive_file_id") else None
+    context: dict = {}  # filled by the Claude Code paths: prompt tokens, model, context window
     kwargs = dict(paper_text=raw_text, paper_title=paper.get("title", ""), question=body.question, history=history,
                   my_notes=my_notes, document=document)
     if body.model in ("litellm", "ollama"):
-        answer = chat_with_paper_litellm(**kwargs)
+        answer = chat_with_paper_litellm(**kwargs, context=context)
     elif body.model == "claude-work":
         answer = chat_with_paper_work(**kwargs)
     elif body.model == "claude-code":
-        answer = chat_with_paper_claude_code(**kwargs)
+        answer = chat_with_paper_claude_code(**kwargs, context=context)
     else:
-        answer = chat_with_paper(**kwargs)
+        answer = chat_with_paper(**kwargs, context=context)
 
     # Persist to Neo4j conversation
     conv_id = body.conversation_id
@@ -1476,7 +1477,8 @@ def chat(paper_id: str, body: ChatRequest, x_user_name: Optional[str] = Header(N
         log.warning("Failed to save chat to Neo4j: %s", exc)
 
     return {"answer": answer, "conversation_id": conv_id,
-            "coverage": document.coverage() if document is not None else None}
+            "coverage": document.coverage() if document is not None else None,
+            "context": context or None}
 
 
 # ── Per-paper conversation management ─────────────────────────────────────────

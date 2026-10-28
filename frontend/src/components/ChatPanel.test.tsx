@@ -55,3 +55,25 @@ describe("ChatPanel: long-paper coverage flag", () => {
     await waitFor(() => expect(screen.queryByText(/Long paper/)).not.toBeInTheDocument());
   });
 });
+
+describe("ChatPanel: context meter", () => {
+  beforeEach(() => {
+    vi.mocked(client.chatWithPaper).mockReset();
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  it("shows the real request size, window and model once Claude reports them", async () => {
+    vi.mocked(client.chatWithPaper).mockResolvedValue({
+      answer: "Whole thesis answer.", conversation_id: "c3",
+      coverage: { total_pages: 177, pages_read: "1-177", complete: true },
+      context: { tokens: 112_400, window: 1_000_000, model: "claude-opus-5-5" },
+    });
+    serverSaves("Whole thesis answer.");
+    await ask("Summarise chapter 4");
+    await screen.findByText("Whole thesis answer.");
+    expect(await screen.findByText(/112\.4k \/ 1M tokens/)).toBeInTheDocument();
+    expect(screen.getByText(/claude-opus-5-5/)).toBeInTheDocument();
+    expect(screen.getByText("11.2%")).toBeInTheDocument();
+  });
+});
+

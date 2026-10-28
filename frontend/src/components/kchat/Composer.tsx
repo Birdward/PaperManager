@@ -1,6 +1,5 @@
 // Modelled on the thesis desk's Composer: one shell holding attachments, the text and a control bar.
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { CHAT_MODEL_LABELS, type ChatModel } from "../../lib/chatModels";
 
 /** Scope mentions as the backend parses them (routers/knowledge_chat.py `_MENTION_RE`), plus @user. */
 const MENTION = /@(project|tag|topic|paper|blog|person|user):(?:"([^"]+)"|'([^']+)'|([^\s@,]+))/gi;
@@ -57,8 +56,6 @@ type Props = {
   onSend: (text: string) => void;
   onStop: () => void;
   running: boolean;
-  models: ChatModel[];
-  model: ChatModel; onModel: (m: ChatModel) => void;
   useWeb: boolean; onUseWeb: (v: boolean) => void;
   autoConcepts: boolean; onAutoConcepts: (v: boolean) => void;
   /** Text put into the box from outside (an edited question, a starter); `n` changes per use. */
@@ -184,10 +181,6 @@ export function Composer(p: Props) {
           <button type="button" className={`kc-mini ${p.autoConcepts ? "on" : ""}`}
             title={p.autoConcepts ? "Concept cards are made for every answer" : "Concept cards only when you press Visualise"}
             onClick={() => p.onAutoConcepts(!p.autoConcepts)}>concepts{p.autoConcepts ? " · auto" : ""}</button>
-          <select value={p.model} onChange={(e) => p.onModel(e.target.value as ChatModel)} title="Model" aria-label="Model">
-            {p.models.map((m) => <option key={m} value={m}>{CHAT_MODEL_LABELS[m]}</option>)}
-            {!p.models.includes(p.model) && <option value={p.model}>{CHAT_MODEL_LABELS[p.model] ?? p.model}</option>}
-          </select>
           <span className="kc-spacer" />
           <span className="kc-hint">Enter to send · Shift+Enter for a newline</span>
           {p.running

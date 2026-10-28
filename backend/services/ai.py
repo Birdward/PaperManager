@@ -45,6 +45,17 @@ def _personal_client() -> anthropic.Anthropic:
     )
 
 
+def _text_limit(litellm_chars: int, claude_chars: int | None = None) -> int:
+    """How many characters of a document a task may send. On Claude (no LiteLLM endpoint) the whole
+    document, up to paper_pages.INLINE_CHARS (or *claude_chars*); with a LiteLLM model configured,
+    the small cap that suits it."""
+    if litellm_configured():
+        return litellm_chars
+    from services.paper_pages import INLINE_CHARS
+
+    return claude_chars or INLINE_CHARS
+
+
 def _subscription_instead_of_key() -> bool:
     """True when the user has no personal API key but may use Claude Code.
 
@@ -96,8 +107,7 @@ def summarize_paper(text: str, title: str = "", custom_instructions: str | None 
     if not text or not text.strip():
         return "_No text could be extracted from this paper._"
 
-    # Gemma has a smaller context window than Claude — cap the paper text.
-    paper_text = text[:24000]
+    paper_text = text[:_text_limit(24000)]
     if custom_instructions and custom_instructions.strip():
         prompt = (
             f"{custom_instructions.strip()}\n\n"
@@ -114,6 +124,7 @@ def summarize_paper(text: str, title: str = "", custom_instructions: str | None 
         result = chat_completion(
             messages=[{"role": "user", "content": prompt}],
             max_tokens=4096,
+            claude_model="opus",
         )
     except Exception as exc:
         log.warning("summarize_paper: LiteLLM call failed | %s", exc)
@@ -631,6 +642,9 @@ def execute_library_tool(name: str, args: dict[str, Any], driver: Any) -> tuple[
                     lft_title = row["title"] or lft_paper_id
                     raw_tokens = estimate_tokens(raw)
                     budget_tokens = 15_000
+                    # Characters one call may return: on Claude (1M window, at most 5 calls per
+                    # question) whole documents up to 300k; a LiteLLM model gets ~15k tokens.
+                    budget_chars = budget_tokens * 4 if litellm_configured() else 300_000
                     doc = PaperDocument.for_paper(row.data())
                     pages_arg = re.fullmatch(r"\s*(\d+)\s*(?:-\s*(\d+))?\s*", args.get("pages") or "")
                     if args.get("query"):
@@ -640,15 +654,15 @@ def execute_library_tool(name: str, args: dict[str, Any], driver: Any) -> tuple[
                         start = int(pages_arg.group(1))
                         lft_content = doc.read_pages(start, int(pages_arg.group(2) or start))
                         tok_label = ("" if doc.complete else "⚠ partial: ") + f"pages {doc.coverage()['pages_read']} of {doc.total_pages}"
-                    elif raw_tokens <= budget_tokens:
+                    elif len(raw) <= budget_chars:
                         lft_content = raw
                         tok_label = f"{raw_tokens:,} tokens"
-                    elif len(raw) <= 100_000:
+                    elif litellm_configured() and len(raw) <= 100_000:
                         # The condensed text still covers the whole paper.
                         lft_content = _condense_paper_for_budget(lft_title, raw, budget_tokens)
                         tok_label = f"condensed to ~{estimate_tokens(lft_content):,} tokens"
                     else:
-                        lft_content = doc.context_text(HOW_KNOWLEDGE_CHAT, budget=budget_tokens * 4)
+                        lft_content = doc.context_text(HOW_KNOWLEDGE_CHAT, budget=budget_chars)
                         tok_label = f"⚠ partial: pages {doc.coverage()['pages_read']} of {doc.total_pages}"
                 else:
                     lft_content = "[Full text not available for this paper]"
@@ -919,7 +933,7 @@ def summarize_chapter(title: str, text: str, model: str | None = None) -> str:
     use_claude = effective_model == "claude-work" or effective_model.startswith("claude-")
     prompt = _load_prompt("chapter_summary.txt").format(
         title=title or "(untitled chapter)",
-        text=text[:20000] if use_claude else text[:8000],
+        text=text[:_text_limit(20000 if use_claude else 8000)],
     )
 
     if effective_model == "claude-work":
@@ -933,7 +947,7 @@ def summarize_chapter(title: str, text: str, model: str | None = None) -> str:
     elif effective_model.startswith("claude-"):
         if _subscription_instead_of_key():
             from services.claude_code_chat import complete_claude_code
-            return complete_claude_code("", prompt)
+            return complete_claude_code("", prompt, model="opus")
         client = _personal_client()
         message = client.messages.create(
             model=effective_model,
@@ -945,6 +959,7 @@ def summarize_chapter(title: str, text: str, model: str | None = None) -> str:
         return chat_completion(
             messages=[{"role": "user", "content": prompt}],
             model=effective_model,
+            claude_model="opus",
         )
 
 
@@ -954,10 +969,10 @@ def chat_with_chapter(
     question: str,
     history: list[dict[str, Any]] | None = None,
 ) -> str:
-    """Answer *question* about a specific chapter using Gemma."""
+    """Answer *question* about a specific chapter."""
     system = _load_prompt("chapter_chat_system.txt").format(
         title=chapter_title or "(untitled chapter)",
-        text=chapter_text[:24000],
+        text=chapter_text[:_text_limit(24000)],
     )
     messages: list[dict[str, Any]] = [{"role": "system", "content": system}]
     messages.extend(history or [])
@@ -965,6 +980,7 @@ def chat_with_chapter(
     return chat_completion(
         messages=messages,
         max_tokens=1024,
+        claude_model="opus",
     )
 
 
@@ -990,7 +1006,7 @@ def detect_chapters_with_ai(title: str, text: str) -> list[dict]:
         "Return a JSON object with key 'chapters', each item having: "
         "number (int), title (str), level (always 1).\n\n"
         f"Document title: {title or '(unknown)'}\n\n"
-        f"Document text (first 6000 words):\n{text[:15000]}"
+        f"Document text (from the start):\n{text[:_text_limit(15000, 120_000)]}"
     )
     raw_text = chat_completion(messages=[{"role": "user", "content": prompt}])
     match = re.search(r'\{.*\}', raw_text, re.DOTALL)
@@ -1058,7 +1074,7 @@ extract_affiliations_with_ollama = extract_affiliations_with_litellm
 # ── Blog post AI ───────────────────────────────────────────────────────────────
 
 def summarize_blog_post(content: str, title: str = "") -> str:
-    """Summarize a blog post using Claude Haiku (fast, cheap)."""
+    """Summarize a blog post."""
     if not content or not content.strip():
         return "_No content available to summarize._"
 
@@ -1067,12 +1083,13 @@ def summarize_blog_post(content: str, title: str = "") -> str:
         f"Focus on the key ideas, insights, and takeaways. "
         f"Use markdown formatting.\n\n"
         f"Title: {title or '(unknown)'}\n\n"
-        f"Content:\n{content[:24000]}"
+        f"Content:\n{content[:_text_limit(24000, 120_000)]}"
     )
 
     return chat_completion(
         messages=[{"role": "user", "content": prompt}],
         max_tokens=800,
+        claude_model="opus",
     )
 
 
@@ -1086,7 +1103,7 @@ def chat_with_blog_post(
     system = (
         f"You are an expert assistant helping the user understand a blog post.\n\n"
         f"Blog post title: {title or '(unknown)'}\n\n"
-        f"Blog post content:\n{content[:24000]}\n\n"
+        f"Blog post content:\n{content[:_text_limit(24000, 120_000)]}\n\n"
         f"Answer the user's questions about this blog post concisely and accurately. "
         f"If the answer is not in the blog post, say so."
     )
@@ -1098,6 +1115,7 @@ def chat_with_blog_post(
     return chat_completion(
         messages=messages,
         max_tokens=1024,
+        claude_model="opus",
     )
 
 
@@ -1170,7 +1188,7 @@ def find_research_gaps(
 
 def extract_claims(text: str, title: str, model: str | None = None) -> list[dict]:
     """
-    Extract claims from paper text using Claude Haiku or LiteLLM.
+    Extract claims from paper text (Claude Opus over the whole text, or a LiteLLM model).
     Routes to Anthropic when model starts with 'claude-', otherwise LiteLLM.
     Returns list of {"text": str, "type": str}.
     Returns [] on any error (non-fatal — called best-effort on upload).
@@ -1182,13 +1200,13 @@ def extract_claims(text: str, title: str, model: str | None = None) -> list[dict
     effective_model = resolve_chat_model(model)
     prompt = _load_prompt("claims.txt").format(
         title=title or "(unknown)",
-        text=text[:40000] if effective_model.startswith("claude-") else text[:12000],
+        text=text[:_text_limit(40000 if effective_model.startswith("claude-") else 12000)],
     )
     
     try:
         if effective_model.startswith("claude-") and _subscription_instead_of_key():
             from services.claude_code_chat import complete_claude_code
-            raw = complete_claude_code("", prompt)
+            raw = complete_claude_code("", prompt, model="opus")
         elif effective_model.startswith("claude-"):
             client = _personal_client()
             message = client.messages.create(
@@ -1202,6 +1220,7 @@ def extract_claims(text: str, title: str, model: str | None = None) -> list[dict
                 messages=[{"role": "user", "content": prompt}],
                 model=effective_model,
                 json_mode=True,
+                claude_model="opus",
             )
         
         match = re.search(r"\{.*\}", raw, re.DOTALL)

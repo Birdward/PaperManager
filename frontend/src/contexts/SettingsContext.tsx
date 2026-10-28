@@ -24,12 +24,6 @@ export interface AppSettings {
   autoSaveReferences: boolean;
   defaultSummaryInstructions: string;
 
-  // Books & Chapters
-  chapterSummaryModel: string;
-
-  // Figures
-  figureCaptionMethod: "docling" | "ollama" | "litellm" | "claude-vision";
-
   // Graph
   defaultGraphMode: "full" | "papers";
   graphNodeSize: number;
@@ -37,17 +31,11 @@ export interface AppSettings {
   graphShowEdgeLabels: boolean;
 
   // Knowledge Chat
-  knowledgeChatDefaultModel: "claude" | "claude-work" | "litellm" | "ollama";
   knowledgeChatUseWeb: boolean;
-  knowledgeChatOpusThreshold: number; // token count above which Opus is used instead of Sonnet
 
   // Inference — upload-time enrichment
   autoExtractClaims: boolean;
-  claimsModel: string;
   generateEmbeddingsOnUpload: boolean;
-
-  // Inference — compaction
-  compactionKeepLastN: number; // how many messages to keep verbatim in sliding-window compact
 
   // Debug
   debugMode: boolean;
@@ -61,19 +49,13 @@ export const SETTINGS_DEFAULTS: AppSettings = {
   showSummaryPromptStep: true,
   autoSaveReferences: false,
   defaultSummaryInstructions: DEFAULT_SUMMARY_INSTRUCTIONS,
-  chapterSummaryModel: "google/gemma-4-26b-a4b-it",
-  figureCaptionMethod: "docling",
   defaultGraphMode: "papers",
   graphNodeSize: 16,
   graphShowNodeLabels: true,
   graphShowEdgeLabels: true,
-  knowledgeChatDefaultModel: "claude",
   knowledgeChatUseWeb: true,
-  knowledgeChatOpusThreshold: 40000,
   autoExtractClaims: true,
-  claimsModel: "litellm",
   generateEmbeddingsOnUpload: true,
-  compactionKeepLastN: 6,
   debugMode: false,
 };
 
@@ -84,15 +66,6 @@ function loadFromStorage(): AppSettings {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return SETTINGS_DEFAULTS;
     const parsed = { ...SETTINGS_DEFAULTS, ...JSON.parse(raw) };
-    if (parsed.knowledgeChatDefaultModel === "ollama") {
-      parsed.knowledgeChatDefaultModel = "litellm";
-    }
-    if (parsed.chapterSummaryModel === "llama3.2:3b") {
-      parsed.chapterSummaryModel = SETTINGS_DEFAULTS.chapterSummaryModel;
-    }
-    if (parsed.figureCaptionMethod === "ollama") {
-      parsed.figureCaptionMethod = "litellm";
-    }
     return parsed;
   } catch {
     return SETTINGS_DEFAULTS;

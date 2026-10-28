@@ -15,7 +15,10 @@ import re
 from typing import Any
 
 from services.ai import _load_prompt
-from services.litellm_client import chat_completion
+from services.litellm_client import chat_completion, litellm_configured
+
+# Paper text per extraction: more for Claude (Opus, 1M window) than for a LiteLLM model.
+_TEXT_CHARS = 12000 if litellm_configured() else 120_000
 
 log = logging.getLogger(__name__)
 
@@ -57,7 +60,7 @@ def _context(paper: dict, claims: list[str]) -> str:
     if claims:
         parts.append("Claims:\n" + "\n".join(f"- {c}" for c in claims[:30]))
     if not parts and paper.get("raw_text"):
-        parts.append(f"Text (beginning):\n{paper['raw_text'][:12000]}")
+        parts.append(f"Text (beginning):\n{paper['raw_text'][:_TEXT_CHARS]}")
     return "\n\n".join(parts)
 
 
@@ -157,6 +160,7 @@ def extract_paper_concepts(paper: dict, authors: list[str], claims: list[str], v
                 max_tokens=4096,
                 timeout=CALL_TIMEOUT_S,
                 max_retries=CALL_RETRIES,
+                claude_model="opus",
             )
         except Exception as exc:  # noqa: BLE001 — surfaced per paper in the job status
             raise ConceptMapError(f"LLM call failed: {type(exc).__name__}: {exc}") from exc

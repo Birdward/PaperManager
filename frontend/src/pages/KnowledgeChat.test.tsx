@@ -16,11 +16,7 @@ const api = vi.hoisted(() => ({
 }));
 vi.mock("../api/client", () => api);
 vi.mock("../contexts/SettingsContext", () => ({
-  useAppSettings: () => ({ settings: { knowledgeChatDefaultModel: "claude", knowledgeChatUseWeb: false } }),
-}));
-vi.mock("../lib/chatModels", () => ({
-  CHAT_MODEL_LABELS: { claude: "Claude", "claude-code": "Claude Code", "claude-work": "Claude (Work)", litellm: "LiteLLM" },
-  useChatModels: () => ["claude"],
+  useAppSettings: () => ({ settings: { knowledgeChatUseWeb: false } }),
 }));
 
 import KnowledgeChat, { awaitSavedAnswer, toItems } from "./KnowledgeChat";

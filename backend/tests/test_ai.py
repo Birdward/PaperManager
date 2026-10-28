@@ -47,9 +47,13 @@ def test_summarize_passes_title_in_prompt():
 
 
 def test_summarize_truncates_long_text():
-    """Text longer than the model cap should be truncated in the prompt."""
+    """With a LiteLLM model, text longer than its cap is truncated in the prompt.
+    (On Claude the whole paper is sent: tests/test_models_and_limits.py.)"""
+    from config import settings
+
     long_text = "word " * 20000  # ~100k chars
-    with patch("services.ai.chat_completion", return_value="Summary") as mock_cc:
+    with patch.object(settings, "litellm_endpoint", "http://litellm.invalid"), \
+         patch("services.ai.chat_completion", return_value="Summary") as mock_cc:
         summarize_paper(long_text)
 
     prompt_content = mock_cc.call_args.kwargs["messages"][0]["content"]

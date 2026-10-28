@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { scanDuplicates, executeMerge, type DuplicatePair } from "../api/client";
 
-type Model = "litellm" | "claude" | "none";
-
 export default function MergeManager() {
-  const [model, setModel] = useState<Model>("litellm");
   const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
   const [pairs, setPairs] = useState<DuplicatePair[] | null>(null);
@@ -22,7 +19,7 @@ export default function MergeManager() {
     setCurrentIndex(0);
     setMergeResult(null);
     try {
-      const result = await scanDuplicates(model);
+      const result = await scanDuplicates();  // detection is rule-based (DOI and title); no model
       setPairs(result.pairs);
       setTotalPapers(result.total_papers);
     } catch (err) {
@@ -79,22 +76,7 @@ export default function MergeManager() {
       {/* Scan controls */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-sm font-medium text-gray-700">Verification model</span>
-          <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs font-medium">
-            {(["litellm", "claude", "none"] as Model[]).map((m) => (
-              <button
-                key={m}
-                onClick={() => setModel(m)}
-                className={`px-4 py-2 transition-colors ${
-                  model === m
-                    ? "bg-violet-600 text-white"
-                    : "bg-white text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                {m === "litellm" ? "Gemma (LiteLLM)" : m === "claude" ? "Claude Haiku" : "None (similarity only)"}
-              </button>
-            ))}
-          </div>
+          <span className="text-sm text-gray-500">Finds duplicates by DOI and title.</span>
           <button
             onClick={runScan}
             disabled={scanning}

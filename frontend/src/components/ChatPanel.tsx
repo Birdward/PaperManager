@@ -7,10 +7,8 @@ import {
   deletePaperConversation, chatWithPaper, type PaperChatCoverage, type PaperChatContext,
 } from "../api/client";
 import type { Conversation, KnowledgeMessage } from "../types";
-import { CHAT_MODEL_LABELS, useChatModels, type ChatModel } from "../lib/chatModels";
+import { CHAT_MODEL, CHAT_MODEL_LABEL } from "../lib/chatModels";
 
-type Model = ChatModel;
-const MODEL_LABELS = CHAT_MODEL_LABELS;
 
 
 interface Props {
@@ -30,8 +28,6 @@ export default function ChatPanel({ paperId }: Props) {
   const [loading, setLoading]             = useState(false);
   const [loadingMsgs, setLoadingMsgs]     = useState(false);
   const [error, setError]                 = useState<string | null>(null);
-  const [model, setModel]                 = useState<Model>("litellm");
-  const models = useChatModels();
 
   // Title editing
   const [editingTitle, setEditingTitle]   = useState(false);
@@ -89,7 +85,7 @@ export default function ChatPanel({ paperId }: Props) {
         .filter((m) => m.role !== "system")
         .map((m) => ({ role: m.role, content: m.content }));
 
-      const res = await chatWithPaper(paperId, question, history, model, activeConvId ?? undefined);
+      const res = await chatWithPaper(paperId, question, history, CHAT_MODEL, activeConvId ?? undefined);
 
       const assistantMsg: KnowledgeMessage = {
         id: `tmp-a-${Date.now()}`, role: "assistant", content: res.answer,
@@ -232,14 +228,6 @@ export default function ChatPanel({ paperId }: Props) {
 
         {/* Input for new conversation */}
         <div className="flex flex-col gap-1.5 shrink-0">
-          <div className="flex rounded border border-gray-200 overflow-hidden text-[10px] self-start">
-            {models.map((m) => (
-              <button key={m} onClick={() => setModel(m)}
-                className={`px-1.5 py-0.5 transition-colors ${model === m ? "bg-violet-600 text-white" : "text-gray-500 hover:bg-gray-50"}`}>
-                {MODEL_LABELS[m]}
-              </button>
-            ))}
-          </div>
           <div className="flex gap-2">
             <input
               ref={inputRef}
@@ -309,14 +297,6 @@ export default function ChatPanel({ paperId }: Props) {
         )}
 
         <div className="flex items-center gap-1 shrink-0">
-          <div className="flex rounded border border-gray-200 overflow-hidden text-[10px]">
-            {models.map((m) => (
-              <button key={m} onClick={() => setModel(m)}
-                className={`px-1.5 py-0.5 transition-colors ${model === m ? "bg-violet-600 text-white" : "text-gray-500 hover:bg-gray-50"}`}>
-                {MODEL_LABELS[m]}
-              </button>
-            ))}
-          </div>
           <button
             onClick={handleCompact}
             disabled={compacting || messages.length < 4}
@@ -419,7 +399,7 @@ export default function ChatPanel({ paperId }: Props) {
           <div className="flex justify-start">
             <div className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-400 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-              {MODEL_LABELS[model]} is thinking…
+              {CHAT_MODEL_LABEL} is thinking…
             </div>
           </div>
         )}

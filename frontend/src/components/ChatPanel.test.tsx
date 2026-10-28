@@ -11,7 +11,6 @@ vi.mock("../api/client", () => ({
   compactPaperConversation: vi.fn(),
   deletePaperConversation: vi.fn(),
   chatWithPaper: vi.fn(),
-  getMyAiKeyStatus: vi.fn().mockResolvedValue({}),
 }));
 
 // As the server does: once a new conversation exists, its saved messages are reloaded.

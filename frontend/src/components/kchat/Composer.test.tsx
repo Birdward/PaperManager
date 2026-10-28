@@ -10,7 +10,6 @@ const ENT: Entities = {
 function setup(over: Partial<React.ComponentProps<typeof Composer>> = {}) {
   const props = {
     entities: ENT, attached: [], onAttach: vi.fn(), onDetach: vi.fn(), onSend: vi.fn(), onStop: vi.fn(), running: false,
-    models: ["claude-code", "claude", "litellm"] as const, model: "claude" as const, onModel: vi.fn(),
     useWeb: true, onUseWeb: vi.fn(), autoConcepts: false, onAutoConcepts: vi.fn(), ...over,
   };
   render(<Composer {...(props as React.ComponentProps<typeof Composer>)} />);
@@ -86,14 +85,12 @@ describe("Composer", () => {
     expect(props.onAttach).toHaveBeenCalledWith(ENT.papers[0]);
   });
 
-  it("toggles web and concepts and switches the model", () => {
+  it("toggles web and concepts", () => {
     const { props } = setup();
     fireEvent.click(screen.getByText("web"));
     expect(props.onUseWeb).toHaveBeenCalledWith(false);
     fireEvent.click(screen.getByText("concepts"));
     expect(props.onAutoConcepts).toHaveBeenCalledWith(true);
-    fireEvent.change(screen.getByLabelText("Model"), { target: { value: "claude-code" } });
-    expect(props.onModel).toHaveBeenCalledWith("claude-code");
   });
 
   it("offers Stop while an answer is running", () => {

@@ -17,7 +17,7 @@ from services.concepts import normalise
 
 log = logging.getLogger(__name__)
 
-TOUR_MODEL = "sonnet"
+TOUR_MODEL = "opus"
 TOUR_EFFORT = "medium"
 MAX_PAGES = 60
 MAX_PAGE_CHARS = 5000

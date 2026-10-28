@@ -6,7 +6,6 @@ import People from "./pages/People";
 import Projects from "./pages/Projects";
 import Settings from "./pages/Settings";
 import BulkImport from "./pages/BulkImport";
-import Tools from "./pages/Tools";
 import LiteratureSearch from "./pages/LiteratureSearch";
 import Discover from "./pages/Discover";
 import Blogs from "./pages/Blogs";
@@ -27,7 +26,6 @@ import Toaster from "./components/Toaster";
 const Graph         = lazy(() => import("./pages/Graph"));
 const Cypher        = lazy(() => import("./pages/Cypher"));
 const KnowledgeChat = lazy(() => import("./pages/KnowledgeChat"));
-const IdeogramChat  = lazy(() => import("./pages/IdeogramChat"));
 const ConceptMap    = lazy(() => import("./pages/ConceptMap"));
 
 function NavBar() {
@@ -55,7 +53,6 @@ function NavBar() {
       <NavLink to="/graph" className={cls}>Graph</NavLink>
       <NavLink to="/cypher" className={cls}>Cypher</NavLink>
       <NavLink to="/knowledge" className={cls}>Knowledge</NavLink>
-      <NavLink to="/tools" className={cls}>Tools</NavLink>
       <NavLink to="/discover" className={cls}>Discover</NavLink>
       <NavLink to="/literature" className={cls}>Literature</NavLink>
       <NavLink to="/blogs" className={cls}>Blogs</NavLink>
@@ -132,8 +129,6 @@ function AppLayout() {
                 <Route path="/graph"   element={<Suspense fallback={<div className="p-8 text-sm text-gray-400">Loading graph…</div>}><Graph /></Suspense>} />
                 <Route path="/cypher" element={<Suspense fallback={<div className="p-8 text-sm text-gray-400">Loading…</div>}><Cypher /></Suspense>} />
                 <Route path="/knowledge" element={<Suspense fallback={<div className="p-8 text-sm text-gray-400">Loading…</div>}><KnowledgeChat /></Suspense>} />
-                <Route path="/tools" element={<Tools />} />
-                <Route path="/tools/ideogram" element={<Suspense fallback={<div className="p-8 text-sm text-gray-400">Loading…</div>}><IdeogramChat /></Suspense>} />
                 <Route path="/discover" element={<Discover />} />
                 <Route path="/literature" element={<LiteratureSearch />} />
                 <Route path="/bulk-import" element={<BulkImport />} />

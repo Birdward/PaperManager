@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { mdPlugins } from "../lib/markdown";
 import { listChapters, detectChapters, regenerateChapterSummary, chatWithChapter, getChapterPdfUrl, getPaperPdfUrl } from "../api/client";
-import { useAppSettings } from "../contexts/SettingsContext";
 import type { Chapter } from "../types";
 
 interface Props {
@@ -12,7 +11,6 @@ interface Props {
 type ViewMode = "list" | "fullpdf" | "chapter-pdf";
 
 export default function BookChapters({ paperId }: Props) {
-  const { settings } = useAppSettings();
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
   const [detecting, setDetecting] = useState(false);
@@ -44,7 +42,7 @@ export default function BookChapters({ paperId }: Props) {
     setDetecting(true);
     setDetectError(null);
     try {
-      const result = await detectChapters(paperId, useAi, settings.chapterSummaryModel);
+      const result = await detectChapters(paperId, useAi);
       setChapters(result);
     } catch (e) {
       setDetectError(e instanceof Error ? e.message : "Chapter detection failed");
@@ -56,7 +54,7 @@ export default function BookChapters({ paperId }: Props) {
   const handleRegenerateSummary = async (chapterId: string) => {
     setRegenerating(chapterId);
     try {
-      const updated = await regenerateChapterSummary(paperId, chapterId, settings.chapterSummaryModel);
+      const updated = await regenerateChapterSummary(paperId, chapterId);
       setChapters((prev) => prev.map((c) => (c.id === chapterId ? updated : c)));
     } catch (e) {
       console.error("Failed to regenerate chapter summary:", e);

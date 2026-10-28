@@ -1,4 +1,4 @@
-import type { T_IngestOut, ParsedMeta, GraphData, Reference, Conversation, KnowledgeMessage, SseEvent, BulkSseEvent, Figure, PaperTable, LiteratureSseEvent, Paper, Chapter, Blog, BlogPost, Note, Annotation, AnnotationColor, VenueOut, Claim , IdeogramCaption, IdeogramSessionStatus, IdeogramGenerateBody, IdeogramGenerateResult, Concept, ConceptsBackend, ConceptGeneration } from "../types";
+import type { T_IngestOut, ParsedMeta, GraphData, Reference, Conversation, KnowledgeMessage, SseEvent, BulkSseEvent, Figure, PaperTable, LiteratureSseEvent, Paper, Chapter, Blog, BlogPost, Note, Annotation, AnnotationColor, VenueOut, Claim , Concept, ConceptsBackend, ConceptGeneration } from "../types";
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
@@ -60,38 +60,6 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
     throw new Error(`API ${res.status}: ${detail}`);
   }
   return res.json();
-}
-
-export interface MyAiKeyStatus {
-  username: string;
-  uses_env_fallback: boolean;
-  has_user_anthropic_api_key: boolean;
-  has_user_anthropic_work_api_key: boolean;
-  user_anthropic_work_base_url: string;
-  effective_has_anthropic_api_key: boolean;
-  effective_has_anthropic_work_api_key: boolean;
-  effective_anthropic_work_base_url: string;
-  source_personal: "user" | "env" | "none";
-  source_work: "user" | "env" | "none";
-  claude_code_available: boolean;
-}
-
-export interface UpdateMyAiKeysBody {
-  anthropic_api_key: string;
-  anthropic_work_api_key: string;
-  anthropic_work_base_url: string;
-}
-
-export async function getMyAiKeyStatus(): Promise<MyAiKeyStatus> {
-  return apiFetch("/auth/me/api-keys");
-}
-
-export async function updateMyAiKeys(body: UpdateMyAiKeysBody): Promise<MyAiKeyStatus> {
-  return apiFetch("/auth/me/api-keys", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
 }
 
 export async function parsePdf(file: File, signal?: AbortSignal): Promise<ParsedMeta> {
@@ -920,7 +888,7 @@ export async function fetchTables(paperId: string): Promise<PaperTable[]> {
 
 export async function extractFiguresForPaper(
   paperId: string,
-  captionMethod = "ollama",
+  captionMethod = "docling",
 ): Promise<{ extracted: number; tables_extracted: number }> {
   return apiFetch(`/papers/${paperId}/figures/extract`, {
     method: "POST",
@@ -962,15 +930,6 @@ export async function regenerateChapterSummary(paperId: string, chapterId: strin
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ model: model || null }),
   });
-}
-
-export async function listLitellmModels(): Promise<string[]> {
-  return apiFetch<string[]>("/litellm/models");
-}
-
-/** @deprecated use listLitellmModels */
-export async function listOllamaModels(): Promise<string[]> {
-  return listLitellmModels();
 }
 
 export async function chatWithChapter(
@@ -1393,8 +1352,8 @@ export interface ScanResult {
   total_papers: number;
 }
 
-export async function scanDuplicates(model: string = "litellm"): Promise<ScanResult> {
-  return apiFetch(`/merge/scan?model=${encodeURIComponent(model)}`, { method: "POST" });
+export async function scanDuplicates(): Promise<ScanResult> {
+  return apiFetch(`/merge/scan`, { method: "POST" });
 }
 
 export async function executeMerge(keepId: string, removeId: string): Promise<{ kept_id: string; removed_id: string; relationships_moved: number }> {
@@ -1402,41 +1361,6 @@ export async function executeMerge(keepId: string, removeId: string): Promise<{ 
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ keep_id: keepId, remove_id: removeId }),
-  });
-}
-
-// ── Ideogram (text-to-image tool) ─────────────────────────────────────────────
-
-export async function startIdeogramSession(): Promise<IdeogramSessionStatus> {
-  return apiFetch("/ideogram/session/start", { method: "POST" });
-}
-
-export async function getIdeogramStatus(): Promise<IdeogramSessionStatus> {
-  return apiFetch("/ideogram/session/status");
-}
-
-export async function stopIdeogramSession(): Promise<{ stopped: boolean }> {
-  return apiFetch("/ideogram/session/stop", { method: "POST" });
-}
-
-export async function ideogramMagicPrompt(
-  prompt: string,
-  width: number,
-  height: number,
-  model: "gemma" | "claude" = "gemma",
-): Promise<{ caption: IdeogramCaption | string }> {
-  return apiFetch("/ideogram/magic-prompt", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt, width, height, model }),
-  });
-}
-
-export async function ideogramGenerate(body: IdeogramGenerateBody): Promise<IdeogramGenerateResult> {
-  return apiFetch("/ideogram/generate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
   });
 }
 

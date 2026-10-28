@@ -393,62 +393,6 @@ export interface Claim {
   type: "claim" | "hypothesis" | "finding" | "method" | "limitation";
 }
 
-// ── Ideogram (text-to-image tool) ─────────────────────────────────────────────
-// Structured "boxes" caption schema Ideogram 4 expects. Boxes use
-// bbox = [y_min, x_min, y_max, x_max] on a 0–1000 grid, origin top-left.
-
-export type IdeogramElementType = "text" | "object";
-
-export interface IdeogramElement {
-  type: IdeogramElementType;
-  bbox: [number, number, number, number]; // [y_min, x_min, y_max, x_max], 0–1000
-  text?: string;        // present for text elements
-  desc?: string;
-  color_palette?: string[];
-}
-
-export interface IdeogramStyle {
-  aesthetics?: string;
-  lighting?: string;
-  medium?: string;
-  photo?: string;       // exactly one of photo | art_style
-  art_style?: string;
-  color_palette?: string[];
-}
-
-export interface IdeogramCaption {
-  high_level_description?: string;
-  style_description?: IdeogramStyle;
-  compositional_deconstruction: {
-    background: string;
-    elements: IdeogramElement[];
-  };
-}
-
-export type IdeogramPreset = "V4_TURBO_12" | "V4_DEFAULT_20" | "V4_QUALITY_48";
-
-export interface IdeogramSessionStatus {
-  status: string;       // starting | ready | error | stopped
-  job_id: string | null;
-  error_message?: string | null;
-}
-
-export interface IdeogramGenerateBody {
-  prompt?: string;
-  caption_json?: IdeogramCaption | null;
-  width: number;
-  height: number;
-  seed: number;
-  sampler_preset: IdeogramPreset;
-  magic_prompt?: boolean;
-}
-
-export interface IdeogramGenerateResult {
-  image_base64: string;
-  seed: number;
-  caption: IdeogramCaption | string;
-}
-
 // ── Concepts (interactive visualisations on PDF pages) ───────────────────────
 
 export type ConceptType = "formula" | "graph" | "2d-text" | "2d-anim";

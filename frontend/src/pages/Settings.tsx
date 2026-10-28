@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSettings, type AppSettings, DEFAULT_SUMMARY_INSTRUCTIONS } from "../contexts/SettingsContext";
-import { apiFetch, deleteDebugPapers, countDebugPapers, exportRdf, exportCsv, exportSnapshot, importRdf, importSnapshot, validateSnapshot, clearPapers, seedDefaults, listLitellmModels, getMyAiKeyStatus, updateMyAiKeys, type MyAiKeyStatus, type SnapshotValidation } from "../api/client";
+import { apiFetch, deleteDebugPapers, countDebugPapers, exportRdf, exportCsv, exportSnapshot, importRdf, importSnapshot, validateSnapshot, clearPapers, seedDefaults, type SnapshotValidation } from "../api/client";
 
 type BackfillResult = { processed: number; skipped: number; errors: number };
 type BackfillOp = "topics" | "summary" | "figures" | "claims" | "embeddings";
@@ -25,28 +25,13 @@ export default function Settings() {
   const [clearResult, setClearResult] = useState<Record<string, number> | null>(null);
   const [seeding, setSeeding] = useState(false);
   const [seedResult, setSeedResult] = useState<{ seeded: number } | null>(null);
-  const [litellmModels, setLitellmModels] = useState<string[]>([]);
   const [debugCount, setDebugCount] = useState<number | null>(null);
   const [debugDeleting, setDebugDeleting] = useState(false);
   const [debugDeleteResult, setDebugDeleteResult] = useState<{ deleted: number; figures_deleted: number } | null>(null);
   const [confirmDebugDelete, setConfirmDebugDelete] = useState(false);
-  const [aiStatus, setAiStatus] = useState<MyAiKeyStatus | null>(null);
-  const [aiStatusError, setAiStatusError] = useState<string | null>(null);
-  const [savingAiKeys, setSavingAiKeys] = useState(false);
-  const [personalApiKeyInput, setPersonalApiKeyInput] = useState("");
-  const [workApiKeyInput, setWorkApiKeyInput] = useState("");
-  const [workBaseUrlInput, setWorkBaseUrlInput] = useState("");
-  const [aiSaveMessage, setAiSaveMessage] = useState<string | null>(null);
 
   useEffect(() => {
     countDebugPapers().then(setDebugCount).catch(() => setDebugCount(null));
-    listLitellmModels().then(setLitellmModels).catch(() => setLitellmModels([]));
-    getMyAiKeyStatus().then((s) => {
-      setAiStatus(s);
-      setWorkBaseUrlInput(s.user_anthropic_work_base_url || "");
-    }).catch((err) => {
-      setAiStatusError(err instanceof Error ? err.message : "Could not load AI key status");
-    });
   }, []);
   const [backfill, setBackfill] = useState<Record<BackfillOp, BackfillState>>({
     topics:     { status: "idle" },
@@ -204,28 +189,6 @@ export default function Settings() {
     setSeeding(false);
   };
 
-  const handleSaveAiKeys = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAiSaveMessage(null);
-    setAiStatusError(null);
-    setSavingAiKeys(true);
-    try {
-      const next = await updateMyAiKeys({
-        anthropic_api_key: personalApiKeyInput,
-        anthropic_work_api_key: workApiKeyInput,
-        anthropic_work_base_url: workBaseUrlInput,
-      });
-      setAiStatus(next);
-      setPersonalApiKeyInput("");
-      setWorkApiKeyInput("");
-      setAiSaveMessage("AI key settings saved.");
-    } catch (err) {
-      setAiStatusError(err instanceof Error ? err.message : "Failed to save AI keys");
-    } finally {
-      setSavingAiKeys(false);
-    }
-  };
-
   return (
     <div className="max-w-2xl mx-auto px-6 py-10 space-y-10">
       <h1 className="text-xl font-bold text-gray-900">Settings</h1>
@@ -268,45 +231,6 @@ export default function Settings() {
           />
         </Row>
 
-        <Row label="Figure caption method" description="How figures are detected and captioned at upload time. Docling uses the layout model on hermione (on-demand GPU) when DOCLING_MODE=on_demand.">
-          <ToggleGroup
-            value={settings.figureCaptionMethod}
-            options={[
-              { value: "docling", label: "Docling (AI layout)" },
-              { value: "litellm", label: "LiteLLM (Gemma)" },
-              { value: "claude-vision", label: "Claude Vision" },
-            ]}
-            onChange={(v) => update({ figureCaptionMethod: v as AppSettings["figureCaptionMethod"] })}
-          />
-        </Row>
-      </Section>
-
-      {/* ── Books & Chapters ── */}
-      <Section title="Books & Chapters" description="Settings for chapter detection and AI summarisation.">
-        <Row label="Summary model" description="Model used to generate per-chapter summaries. 'Claude Work' uses your enterprise gateway; 'Claude' uses the personal API key; LiteLLM models use the hosted Gemma proxy.">
-          {(() => {
-            const CLAUDE_OPTIONS = [
-              { value: "claude-work",              label: "Claude Work (Opus)" },
-              { value: "claude-opus-4-6",          label: "Claude (Opus)" },
-              { value: "claude-haiku-4-5-20251001", label: "Claude (Haiku)" },
-            ];
-            const localOptions = litellmModels.map((m) => ({ value: m, label: m }));
-            const allOptions = [
-              ...CLAUDE_OPTIONS,
-              ...(localOptions.length > 0 ? [{ value: "─────────", label: "─────────" }, ...localOptions] : []),
-              ...(!CLAUDE_OPTIONS.some(o => o.value === settings.chapterSummaryModel) && !litellmModels.includes(settings.chapterSummaryModel)
-                ? [{ value: settings.chapterSummaryModel, label: settings.chapterSummaryModel }]
-                : []),
-            ];
-            return (
-              <Select
-                value={settings.chapterSummaryModel}
-                options={allOptions}
-                onChange={(v) => { if (v !== "─────────") update({ chapterSummaryModel: v }); }}
-              />
-            );
-          })()}
-        </Row>
       </Section>
 
       {/* ── Upload Workflow ── */}
@@ -358,18 +282,6 @@ export default function Settings() {
 
       {/* ── Knowledge Chat ── */}
       <Section title="Knowledge Chat" description="Controls the default behaviour of the cross-library chat interface.">
-        <Row label="Default model" description="Pre-selected model when a new conversation is opened. Can be overridden per-session in the chat header.">
-          <ToggleGroup
-            value={settings.knowledgeChatDefaultModel}
-            options={[
-              { value: "claude",      label: "Claude" },
-              { value: "claude-work", label: "Claude (Work)" },
-              { value: "litellm",      label: "Gemma (LiteLLM)" },
-            ]}
-            onChange={(v) => update({ knowledgeChatDefaultModel: v as AppSettings["knowledgeChatDefaultModel"] })}
-          />
-        </Row>
-
         <Row label="Web search by default" description="Pre-enable the web search toggle when starting a new conversation. Adds recent context from the web to every answer.">
           <Toggle
             value={settings.knowledgeChatUseWeb}
@@ -377,142 +289,23 @@ export default function Settings() {
           />
         </Row>
 
-        <Row
-          label="Auto-route large context to Opus"
-          description={`When the total context (system prompt + papers + history) exceeds the threshold, switch from Sonnet to Claude Opus 4.6 for better multi-document reasoning. Current threshold: ${settings.knowledgeChatOpusThreshold.toLocaleString()} tokens.`}
-        >
-          <div className="flex items-center gap-3">
-            <input
-              type="range" min="10000" max="100000" step="5000"
-              value={settings.knowledgeChatOpusThreshold}
-              onChange={(e) => update({ knowledgeChatOpusThreshold: +e.target.value })}
-              className="w-36 accent-violet-600"
-            />
-            <span className="text-xs text-gray-500 font-mono w-16 text-right">
-              {(settings.knowledgeChatOpusThreshold / 1000).toFixed(0)}k tok
-            </span>
-          </div>
-        </Row>
-
-        <Row
-          label="Compaction window"
-          description={`Sliding-window compaction keeps the last N messages verbatim and replaces the rest with a structured working-memory block. Current: keep last ${settings.compactionKeepLastN} messages.`}
-        >
-          <div className="flex items-center gap-3">
-            <input
-              type="range" min="2" max="20" step="2"
-              value={settings.compactionKeepLastN}
-              onChange={(e) => update({ compactionKeepLastN: +e.target.value })}
-              className="w-32 accent-violet-600"
-            />
-            <span className="text-xs text-gray-500 font-mono w-8 text-right">
-              {settings.compactionKeepLastN}
-            </span>
-          </div>
-        </Row>
       </Section>
 
       {/* ── Inference ── */}
       <Section title="Inference" description="Controls which AI enrichment steps run when a paper is uploaded.">
-        <Row label="Extract claims on upload" description="Automatically extract typed intellectual claims (findings, methods, limitations) from every paper's text using Claude Haiku. Adds Claim nodes to the graph, queryable in Knowledge Chat.">
+        <Row label="Extract claims on upload" description="Automatically extract typed intellectual claims (findings, methods, limitations) from every paper's full text using Claude Opus. Adds Claim nodes to the graph, queryable in Knowledge Chat.">
           <Toggle
             value={settings.autoExtractClaims}
             onChange={(v) => update({ autoExtractClaims: v })}
           />
         </Row>
 
-        <Row label="Claims extraction model" description="Model used to extract claims. Claude Haiku is fast and cheap; LiteLLM models use the hosted Gemma proxy.">
-          {(() => {
-            const CLAUDE_OPTIONS = [
-              { value: "claude-haiku-4-5-20251001", label: "Claude Haiku 4.5" },
-              { value: "claude-opus-4-6",           label: "Claude Opus 4.6" },
-            ];
-            const localOptions = litellmModels.map((m) => ({ value: m, label: m }));
-            const allOptions = [
-              ...CLAUDE_OPTIONS,
-              ...(localOptions.length > 0
-                ? [{ value: "─────────", label: "─────────" }, ...localOptions]
-                : []),
-              ...(!CLAUDE_OPTIONS.some((o) => o.value === settings.claimsModel) && !litellmModels.includes(settings.claimsModel)
-                ? [{ value: settings.claimsModel, label: settings.claimsModel }]
-                : []),
-            ];
-            return (
-              <Select
-                value={settings.claimsModel}
-                options={allOptions}
-                onChange={(v) => { if (v !== "─────────") update({ claimsModel: v }); }}
-              />
-            );
-          })()}
-        </Row>
-
-        <Row label="Generate embeddings on upload" description="Compute a 768-dim vector embedding for each paper via LiteLLM (nomic-embed-text) after upload. Enables semantic search in Knowledge Chat. Requires LiteLLM to be configured.">
+        <Row label="Generate embeddings on upload" description="Compute a 768-dim vector embedding for each paper via Ollama (nomic-embed-text) after upload. Enables semantic search in Knowledge Chat.">
           <Toggle
             value={settings.generateEmbeddingsOnUpload}
             onChange={(v) => update({ generateEmbeddingsOnUpload: v })}
           />
         </Row>
-      </Section>
-
-      {/* ── AI Credentials ── */}
-      <Section title="AI Credentials" description="Each user can provide their own Claude credentials. For user Niklas, environment keys are used as fallback.">
-        <div className="px-5 py-4 space-y-3">
-          {aiStatusError && (
-            <p className="text-xs text-red-600">{aiStatusError}</p>
-          )}
-          {aiSaveMessage && (
-            <p className="text-xs text-green-700 font-medium">{aiSaveMessage}</p>
-          )}
-          {aiStatus && (
-            <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600">
-              <p>Effective Personal Claude key: <span className="font-semibold">{aiStatus.effective_has_anthropic_api_key ? `configured (${aiStatus.source_personal})` : "missing"}</span></p>
-              <p>Effective Work Claude key: <span className="font-semibold">{aiStatus.effective_has_anthropic_work_api_key ? `configured (${aiStatus.source_work})` : "missing"}</span></p>
-              {aiStatus.uses_env_fallback && (
-                <p className="mt-1 text-gray-500">Niklas can use environment keys if user-specific keys are empty.</p>
-              )}
-            </div>
-          )}
-          <form onSubmit={handleSaveAiKeys} className="space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Personal Claude API Key</label>
-              <input
-                type="password"
-                value={personalApiKeyInput}
-                onChange={(e) => setPersonalApiKeyInput(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                placeholder="Enter key or leave empty to clear"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Work Claude API Key</label>
-              <input
-                type="password"
-                value={workApiKeyInput}
-                onChange={(e) => setWorkApiKeyInput(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                placeholder="Enter key or leave empty to clear"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Work Base URL (optional)</label>
-              <input
-                type="text"
-                value={workBaseUrlInput}
-                onChange={(e) => setWorkBaseUrlInput(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                placeholder="https://..."
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={savingAiKeys}
-              className="px-4 py-1.5 text-sm font-medium bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-50 transition-colors"
-            >
-              {savingAiKeys ? "Saving…" : "Save AI Credentials"}
-            </button>
-          </form>
-        </div>
       </Section>
 
       {/* ── Graph ── */}
@@ -751,13 +544,13 @@ export default function Settings() {
         />
         <BackfillRow
           label="Extract claims"
-          description="Extract typed intellectual claims (findings, methods, limitations) for papers that have raw text but no claims yet. Uses Claude Haiku."
+          description="Extract typed intellectual claims (findings, methods, limitations) for papers that have raw text but no claims yet. Uses Claude Opus on the full text."
           state={backfill.claims}
           onRun={() => runBackfill("claims")}
         />
         <BackfillRow
           label="Generate embeddings"
-          description="Compute vector embeddings for papers that have no embedding yet via LiteLLM (nomic-embed-text). Required for semantic search in Knowledge Chat."
+          description="Compute vector embeddings for papers that have no embedding yet via Ollama (nomic-embed-text). Required for semantic search in Knowledge Chat."
           state={backfill.embeddings}
           onRun={() => runBackfill("embeddings")}
         />

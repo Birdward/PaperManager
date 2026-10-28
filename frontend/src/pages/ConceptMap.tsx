@@ -425,7 +425,7 @@ export default function ConceptMap() {
         {/* Sidebar */}
         <aside className="w-64 shrink-0 bg-white border-r border-gray-200 overflow-y-auto p-3 space-y-4 text-xs">
           <section>
-            <h3 className="font-semibold text-gray-700 mb-1">Extraction (Gemma)</h3>
+            <h3 className="font-semibold text-gray-700 mb-1">Extraction (Claude Opus)</h3>
             <p className="text-gray-500">{mappedCount} of {data?.papers.length ?? 0} papers mapped</p>
             {job?.running && (
               <div className="mt-1.5">
@@ -518,7 +518,7 @@ export default function ConceptMap() {
               <div ref={containerRef} className="w-full h-full" />
               {data && data.concepts.length === 0 && (
                 <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400 pointer-events-none">
-                  No concepts yet: press “Map new papers” to extract them with Gemma.
+                  No concepts yet: press “Map new papers” to extract them with Claude.
                 </div>
               )}
             </>

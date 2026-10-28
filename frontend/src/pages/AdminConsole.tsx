@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiFetch, type ProjectMember, getProjectMembers, getMyAiKeyStatus, type MyAiKeyStatus } from "../api/client";
+import { apiFetch, type ProjectMember, getProjectMembers } from "../api/client";
 import { useAuth } from "../contexts/AuthContext";
 import UserManagement from "../components/UserManagement";
 import ProjectMembers from "../components/ProjectMembers";
@@ -34,9 +34,8 @@ export default function AdminConsole() {
   const [users, setUsers] = useState<User[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [memberships, setMemberships] = useState<ProjectMembership[]>([]);
-  const [aiKeyStatuses, setAiKeyStatuses] = useState<Record<string, MyAiKeyStatus>>({});
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "users" | "projects" | "ai-keys">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "users" | "projects">("overview");
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
 
   const canViewAdmin = username?.toLowerCase() === "niklas";
@@ -102,7 +101,7 @@ export default function AdminConsole() {
       {/* Tab Navigation */}
       <div className="border-b border-gray-200 mb-6">
         <div className="flex gap-6">
-          {(["overview", "users", "projects", "ai-keys"] as const).map((tab) => (
+          {(["overview", "users", "projects"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -112,10 +111,7 @@ export default function AdminConsole() {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              {tab === "overview" ? "Overview" : 
-               tab === "users" ? "Users" : 
-               tab === "projects" ? "Projects" : 
-               "AI Key Status"}
+              {tab === "overview" ? "Overview" : tab === "users" ? "Users" : "Projects"}
             </button>
           ))}
         </div>
@@ -305,48 +301,6 @@ export default function AdminConsole() {
             </div>
           )}
 
-          {/* AI Keys Tab */}
-          {activeTab === "ai-keys" && (
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">AI API Key Status</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  All users have access to Gemma models. Non-Niklas users must provide their own Claude API keys.
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                {users.map((user) => {
-                  const isNiklas = user.name.toLowerCase() === "niklas";
-                  return (
-                    <div key={user.id} className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getUserColor(user.name, user.color) }} />
-                        <span className="font-medium text-gray-900">{user.name}</span>
-                        {isNiklas && (
-                          <span className="text-xs px-2 py-0.5 bg-violet-100 text-violet-700 rounded-full">Uses env fallback</span>
-                        )}
-                      </div>
-                      <div className="flex gap-3 text-sm">
-                        <div className="flex items-center gap-1">
-                          <span className="text-gray-500">Gemma:</span>
-                          <span className="text-green-600 font-medium">✓ Available</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="text-gray-500">Claude:</span>
-                          {isNiklas ? (
-                            <span className="text-blue-600 font-medium">✓ Env key</span>
-                          ) : (
-                            <span className="text-yellow-600 font-medium">User key required</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </>
       )}
     </div>

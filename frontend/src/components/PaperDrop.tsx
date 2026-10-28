@@ -2,7 +2,6 @@ import { useCallback, useRef, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { useNavigate } from "react-router-dom";
 import { parsePdf, preprocessPdf, getPreprocessStatus, preanalyzePdf, getPreanalysisStatus, previewUrl, deletePaper, checkDuplicate } from "../api/client";
-import { useAppSettings } from "../contexts/SettingsContext";
 import UploadConfirmModal from "./UploadConfirmModal";
 import type { ParsedMeta, T_IngestOut } from "../types";
 import type { TagSuggestions } from "../api/client";
@@ -41,7 +40,6 @@ type QueuedPdf = {
 
 export default function PaperDrop({ onUploaded, debug }: Props) {
   const navigate = useNavigate();
-  const { settings } = useAppSettings();
   const [open, setOpen]   = useState(false);
   const [tab, setTab]     = useState<Tab>("pdf");
   const [error, setError] = useState<string | null>(null);
@@ -245,7 +243,7 @@ export default function PaperDrop({ onUploaded, debug }: Props) {
   // Stage 1b: kick off Docling figure/table precompute (background on backend).
   const firePreprocess = async (item: QueuedPdf) => {
     try {
-      const { preprocess_key, status } = await preprocessPdf(item.file, settings.figureCaptionMethod);
+      const { preprocess_key, status } = await preprocessPdf(item.file);
       updateItem(item.id, {
         preprocessKey: preprocess_key,
         preprocessStatus: status === "pending" ? "pending" : status as QueuedPdf["preprocessStatus"],

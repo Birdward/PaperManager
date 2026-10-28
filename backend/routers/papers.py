@@ -166,7 +166,7 @@ def upload(
     file: UploadFile = File(...),
     title_override: Optional[str] = Form(None),
     project_id: Optional[str] = Form(None),
-    caption_method: Optional[str] = Form("ollama"),
+    caption_method: Optional[str] = Form("docling"),
     summary_instructions: Optional[str] = Form(None),
     document_type: Optional[str] = Form(None),
     published_date: Optional[str] = Form(None),
@@ -470,7 +470,7 @@ def upload(
             if extraction is None:
                 log.info("Running Docling on upload (no cache) | paper_id=%s", paper["id"])
                 extraction = extract_figures(
-                    pdf_bytes, caption_method=caption_method or "ollama"
+                    pdf_bytes, caption_method=caption_method or "docling"
                 )
             n_figs, n_tbls = save_figures_and_tables(driver, paper["id"], extraction)
             log.info(
@@ -784,7 +784,7 @@ async def ingest_from_url_full(body: IngestFromUrlBody, x_user_name: Optional[st
             log.warning("Reference extraction failed (non-fatal) | %s", exc)
 
         try:
-            figs = extract_figures(pdf_bytes, caption_method="ollama").get("figures", [])
+            figs = extract_figures(pdf_bytes, caption_method="docling").get("figures", [])
             for i, fig in enumerate(figs):
                 fig_filename = f"{paper['id']}_p{fig['page_number']}_{i+1}.png"
                 fig_drive_id = upload_image(fig["image_bytes"], fig_filename)

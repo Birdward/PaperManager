@@ -169,12 +169,12 @@ def test_generate_spec_repair_sends_error_and_code_at_high_effort():
 
 # ── Model routing ────────────────────────────────────────────────────────────
 
-def test_routes_to_claude_code_sonnet_when_available():
+def test_routes_to_claude_code_opus_when_available():
     with patch.object(sc, "claude_code_available", return_value=True), \
          patch.object(sc, "run_structured_claude_code", return_value={"concepts": []}) as cc, \
          patch.object(sc, "_run_json_api") as api:
         sc._run_json("sys", "prompt", sc.DETECTION_SCHEMA, "low")
-    cc.assert_called_once_with("sys", "prompt", sc.DETECTION_SCHEMA, model="sonnet", effort="low")
+    cc.assert_called_once_with("sys", "prompt", sc.DETECTION_SCHEMA, model="opus", effort="low")
     api.assert_not_called()
 
 

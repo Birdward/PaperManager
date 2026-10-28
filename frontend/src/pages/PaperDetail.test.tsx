@@ -40,7 +40,7 @@ vi.mock('../components/PdfAnnotator', () => ({ default: () => null, PdfAnnotator
 vi.mock('../components/UploadConfirmModal', () => ({ default: () => null }));
 vi.mock('../components/OnboardingModal', () => ({ default: () => null }));
 vi.mock('../contexts/SettingsContext', () => ({
-  useAppSettings: () => ({ settings: { figureCaptionMethod: 'docling', debugMode: false } }),
+  useAppSettings: () => ({ settings: { debugMode: false } }),
 }));
 vi.mock('force-graph', () => ({ default: () => ({}) }));
 vi.mock('../lib/notify', () => ({ notify: vi.fn() }));

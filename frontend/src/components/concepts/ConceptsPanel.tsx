@@ -25,7 +25,7 @@ const TYPE_BADGE: Record<ConceptType, { label: string; cls: string }> = {
 };
 
 const BACKEND_LABEL: Record<ConceptsBackend, string> = {
-  "claude-code": "Claude Code · Sonnet (subscription)",
+  "claude-code": "Claude Opus (subscription)",
   api: "API · claude-sonnet-5-5",
 };
 

@@ -9,12 +9,12 @@ import EditPaperModal from "../components/EditPaperModal";
 import BookChapters from "../components/BookChapters";
 import PdfAnnotator from "../components/PdfAnnotator";
 import type { PdfAnnotatorHandle, ConceptMark, PdfPageInfo } from "../components/PdfAnnotator";
+import { CHAT_MODEL } from "../lib/chatModels";
 import ConceptsPanel from "../components/concepts/ConceptsPanel";
 import TourPanel, { type TourStop } from "../components/TourPanel";
 import { SpecialZoomLevel } from "@react-pdf-viewer/core";
 import UploadConfirmModal from "../components/UploadConfirmModal";
 import OnboardingModal from "../components/OnboardingModal";
-import { useAppSettings } from "../contexts/SettingsContext";
 import { notify } from "../lib/notify";
 import type { Paper, Person, Topic, Tag, Reference, Figure, PaperTable, GraphData, ParsedMeta, T_IngestOut, Claim, RelatedPaper, Annotation, AnnotationColor, Concept, ConceptsBackend, ConceptGeneration } from "../types";
 
@@ -63,7 +63,6 @@ export default function PaperDetail() {
   const [figureQuestion, setFigureQuestion] = useState("");
   const [figureAnswer, setFigureAnswer]     = useState<string | null>(null);
   const [figureAnswering, setFigureAnswering] = useState(false);
-  const [figureModel, setFigureModel]       = useState<"claude" | "claude-work">("claude");
   // Graph tab
   const [graphData, setGraphData]   = useState<GraphData | null>(null);
   const [graphLoaded, setGraphLoaded] = useState(false);
@@ -81,7 +80,6 @@ export default function PaperDetail() {
   const [relatedLoading, setRelatedLoading] = useState(false);
   const [addingRelatedIds, setAddingRelatedIds] = useState<Set<string>>(new Set());
 
-  const { settings } = useAppSettings();
   const [rightWidth, setRightWidth] = useState(320);
   const dragging = useRef(false);
 
@@ -192,7 +190,6 @@ export default function PaperDetail() {
   const [claims, setClaims] = useState<Claim[]>([]);
   const [claimsLoaded, setClaimsLoaded] = useState(false);
   const [extractingClaims, setExtractingClaims] = useState(false);
-  const [claimsModel, setClaimsModel] = useState<"claude" | "litellm">("claude");
   // Authors (meta tab)
   const [newAuthorName, setNewAuthorName] = useState("");
   const [addingAuthor, setAddingAuthor] = useState(false);
@@ -395,7 +392,7 @@ export default function PaperDetail() {
     setFigureAnswer(null);
     setFiguresExtractMsg(null);
     try {
-      const res = await extractFiguresForPaper(id, settings.figureCaptionMethod);
+      const res = await extractFiguresForPaper(id);
       const [figs, tbls] = await Promise.all([fetchFigures(id), fetchTables(id)]);
       setFigures(figs);
       setFiguresLoaded(true);
@@ -416,7 +413,7 @@ export default function PaperDetail() {
     setFigureAnswering(true);
     setFigureAnswer(null);
     try {
-      const res = await chatWithFigure(id, selectedFigure.id, figureQuestion.trim(), figureModel);
+      const res = await chatWithFigure(id, selectedFigure.id, figureQuestion.trim(), CHAT_MODEL);
       setFigureAnswer(res.answer);
     } catch (e) {
       setFigureAnswer(`Error: ${e instanceof Error ? e.message : "Chat failed"}`);
@@ -617,8 +614,7 @@ export default function PaperDetail() {
     if (!id) return;
     setExtractingClaims(true);
     try {
-      const model = claimsModel === "claude" ? "claude-haiku-4-5-20251001" : undefined;
-      const res = await extractPaperClaims(id, model);
+      const res = await extractPaperClaims(id);
       setClaims(res.claims);
       setClaimsLoaded(true);
     } catch (error) {
@@ -2320,17 +2316,6 @@ export default function PaperDetail() {
                             <div className="px-4 py-4 space-y-3 border-t border-violet-100 bg-violet-50">
                               <div className="flex items-center justify-between">
                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Ask about this figure</p>
-                                <div className="flex rounded border border-gray-200 overflow-hidden text-xs">
-                                  {(["claude", "claude-work"] as const).map((m) => (
-                                    <button
-                                      key={m}
-                                      onClick={() => setFigureModel(m)}
-                                      className={`px-2.5 py-1 ${figureModel === m ? "bg-violet-600 text-white" : "bg-white text-gray-500 hover:bg-gray-50"}`}
-                                    >
-                                      {m === "claude" ? "Claude" : "Work"}
-                                    </button>
-                                  ))}
-                                </div>
                               </div>
                               <div className="flex gap-2">
                                 <input
@@ -2443,17 +2428,6 @@ export default function PaperDetail() {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold text-gray-700">Claims & Findings</h3>
                   <div className="flex items-center gap-2">
-                    <div className="flex rounded border border-gray-300 overflow-hidden text-xs">
-                      {(["claude", "litellm"] as const).map((m) => (
-                        <button
-                          key={m}
-                          onClick={() => setClaimsModel(m)}
-                          className={`px-2.5 py-1 ${claimsModel === m ? "bg-violet-600 text-white" : "bg-white text-gray-500 hover:bg-gray-50"}`}
-                        >
-                          {m === "claude" ? "Claude" : "Gemma (LiteLLM)"}
-                        </button>
-                      ))}
-                    </div>
                     <button
                       onClick={handleExtractClaims}
                       disabled={extractingClaims}

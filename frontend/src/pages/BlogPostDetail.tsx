@@ -337,7 +337,7 @@ export default function BlogPostDetail() {
                   <div className="max-w-3xl mx-auto bg-white rounded-xl border border-gray-200 p-8">
                     {post.content_md?.trim() && (
                       <p className="text-xs text-violet-500 mb-4 font-medium">
-                        Formatted by LiteLLM
+                        Formatted by Claude
                       </p>
                     )}
                     <div className="prose prose-sm prose-gray max-w-none">

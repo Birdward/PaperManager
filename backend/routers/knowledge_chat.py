@@ -30,6 +30,8 @@ router = APIRouter(prefix="/knowledge-chat", tags=["knowledge-chat"], dependenci
 
 # A paper's note goes into Knowledge Chat context in full up to this length, then cut.
 _NOTE_INLINE_CHARS = 1500
+# Transcript a compaction may summarise: Claude's window is large, a LiteLLM model's is not.
+_COMPACT_CHARS = 100_000
 
 
 def _sse(event: dict) -> str:
@@ -489,12 +491,12 @@ def compact(conv_id: str):
         '  "open_questions": [unresolved questions or threads],\n'
         '  "decisions": [conclusions or directions agreed upon]\n'
         "Return only the JSON object, no other text.\n\n"
-        f"Conversation:\n{transcript[:8000]}"
+        f"Conversation:\n{transcript[:_COMPACT_CHARS]}"
     )
     prose_prompt = (
         "Write a 3-5 sentence summary of the following research conversation, "
         "focusing on what was established and what remains open.\n\n"
-        f"Conversation:\n{transcript[:8000]}"
+        f"Conversation:\n{transcript[:_COMPACT_CHARS]}"
     )
 
     try:

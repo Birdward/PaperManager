@@ -41,7 +41,7 @@ def litellm_configured() -> bool:
     return bool((settings.litellm_endpoint or "").strip())
 
 
-def _complete_on_subscription(messages: list[dict[str, Any]], json_mode: bool) -> str:
+def _complete_on_subscription(messages: list[dict[str, Any]], json_mode: bool, claude_model: str = "sonnet") -> str:
     """Run a chat_completion request through Claude Code on the Claude subscription."""
     from services.claude_code_chat import _prompt, complete_claude_code, subscription_fallback_available
 
@@ -57,7 +57,7 @@ def _complete_on_subscription(messages: list[dict[str, Any]], json_mode: bool) -
     question = turns.pop()["content"] if turns else ""
     log.info("Claude Code → chat_completion (no LiteLLM endpoint) | messages=%d | json_mode=%s",
              len(messages), json_mode)
-    return complete_claude_code(system.strip(), _prompt(turns, question))
+    return complete_claude_code(system.strip(), _prompt(turns, question), model=claude_model)
 
 
 def get_litellm_client() -> OpenAI:
@@ -102,8 +102,12 @@ def chat_completion(
     max_tokens: int | None = None,
     timeout: float | None = None,
     max_retries: int | None = None,
+    claude_model: str = "sonnet",
 ) -> str:
     """Run a chat completion and return the assistant message text.
+
+    Without a LiteLLM endpoint it runs on Claude Code as *claude_model* (a CLI alias:
+    "opus" for writing and reasoning tasks, "sonnet" for routine extraction).
 
     ``timeout`` overrides the client's 20 s default for long generations;
     ``max_retries`` overrides the SDK's automatic retries (2 by default).
@@ -111,7 +115,7 @@ def chat_completion(
     import time as _time
 
     if not litellm_configured():
-        return _complete_on_subscription(messages, json_mode)
+        return _complete_on_subscription(messages, json_mode, claude_model)
 
     client = get_litellm_client()
     overrides = {k: v for k, v in (("timeout", timeout), ("max_retries", max_retries)) if v is not None}

@@ -52,7 +52,7 @@ describe("ConceptsPanel", () => {
     expect(screen.getByText("Page 1")).toBeInTheDocument();
     expect(screen.getByText("Page 5")).toBeInTheDocument();
     expect(screen.getByText("anim")).toBeInTheDocument();
-    expect(screen.getByText(/Claude Code · Sonnet/)).toBeInTheDocument();
+    expect(screen.getByText(/Claude Opus \(subscription\)/)).toBeInTheDocument();
   });
 
   it("scans the PDF when asked", async () => {

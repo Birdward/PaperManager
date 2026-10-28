@@ -136,10 +136,29 @@ After merging, check these, because new upstream code can silently bypass this f
 
 ## Things to know before changing behaviour
 
-- **Models** are CLI aliases: `opus` for Knowledge Chat and paper chat (`CLAUDE_CODE_MODEL`),
-  `sonnet` for background work, concepts, the tour and `complete_claude_code`, and `haiku` for
-  condensing papers. Mythos is available on the account but not wired in. Check the model name
-  Claude Code accepts before switching; don't guess.
+- **One model path in the UI (the clean-up, Edward's choice: UI only, backend kept dormant).**
+  - No model pickers or AI-key settings remain. The UI sends `CHAT_MODEL = "claude-code"`
+    (`frontend/src/lib/chatModels.ts`). The backend still accepts Niklas's model names and keeps
+    its API-key, Claude Work and LiteLLM branches (unused here, but easier to re-sync).
+  - Removed from the UI: Settings rows for figure caption method (always `docling`), chapter
+    summary model, Knowledge Chat default model, the Opus threshold and compaction window (both
+    dead), and the claims model. Also the AI Credentials section, the Admin "AI Key Status" tab,
+    the Merge Manager model picker (detection is rule-based), and the Ideogram image tool (Tools
+    menu, `/tools` routes, page, helpers). The backend `routers/ideogram.py` stays dormant.
+- **Models are Claude Code aliases, by task.**
+  - **Opus:** paper summary, claims, chapter summary and chat, blog summary and chat,
+    concept-map extraction, concepts, tour, all chats, research gaps, synthesis, figure questions.
+  - **Sonnet:** metadata, topics, tags, references, affiliations, AI chapter detection, Cypher
+    assistant, compaction.
+  - `chat_completion(..., claude_model=)` (default `"sonnet"`) picks the alias on the Claude Code
+    path. Verified in the session logs.
+  - Mythos is on the account but not wired in. Check the name Claude Code accepts before
+    switching; don't guess.
+- **Text limits:** `ai._text_limit(litellm_chars, claude_chars=None)` gives the whole document
+  (`paper_pages.INLINE_CHARS`, 480k) on Claude, and the old small caps only if a LiteLLM endpoint
+  is configured. Summaries and claims read the whole paper; chapter detection, blogs and the
+  concept map read up to 120k. Knowledge Chat `load_full_text` returns up to 300k characters
+  whole (the Haiku condense branch only runs with LiteLLM). Compaction reads up to 100k.
 - **Ollama setup:** after creating the `ollama_models` volume for the first time, pull the model
   once with `docker compose -f docker-compose.selfhost.yml exec ollama ollama pull nomic-embed-text`.
   Existing papers get figures and embeddings from the Settings page's backfill buttons
@@ -151,11 +170,10 @@ After merging, check these, because new upstream code can silently bypass this f
   LiteLLM isn't configured, research gaps' default "Gemma" option is routed to this Claude path.
   These calls take 55–75 s, so `frontend/nginx.conf` gives `/synthesis` and `/research-gaps`
   `proxy_read_timeout 600s` (nginx's 60 s default returned 504s). Give any other slow, non-streaming
-  route the same treatment. UI labels still say "Gemma (LiteLLM)" for options that run on Claude.
-- **`_condense_paper_for_budget`** asks for `target_tokens * 3` words (45,000). This was
-  investigated: the output came back complete and within the 15k-token budget, so it was
-  deliberately left alone. Don't add the API path's 4,096-token cap to the subscription path; it
-  would truncate the text.
+  route the same treatment.
+- **`_condense_paper_for_budget`** (asks for `target_tokens * 3` words) now only runs when a
+  LiteLLM endpoint is configured. On Claude, `load_full_text` returns whole documents up to 300k
+  characters instead.
 - **Data** is in the Docker volumes `papermanager_neo4j_data` (database) and
   `papermanager_app_files` (PDFs and figures). It survives rebuilds and is deleted only by
   `down -v`. `papermanager_hf_cache` (Docling models, ~0.5 GB) and
@@ -195,9 +213,7 @@ After merging, check these, because new upstream code can silently bypass this f
   PDF toolbar shows "PDF page N / total · printed X" (pdf.js page labels), because warnings and
   chats use PDF page numbers while theses print their own. Highlights store the viewer's 0-based
   `pageIndex`, so the chats and the export show `page_number + 1`.
-- **Paper chat runs on Opus 5.5** (`claude-opus-5-5`, 1M window) for the "Claude", "Claude Code"
-  and "Gemma" options alike: without an API key or LiteLLM they all reach
-  `chat_with_paper_claude_code`. "Claude (Work)" needs a work API key and fails.
+- **Paper chat runs on Opus 5.5** (`claude-opus-5-5`, 1M window) through `chat_with_paper_claude_code`.
 - **Figure/table numbers** keep thesis/book styles ("3.1", "B.14"); upstream kept only the first
   integer.
 - **Backups:** `./backup.sh` stops Neo4j, writes a `neo4j-admin database dump` (about 0.4 MB;

@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 VIZ_TYPES = ("formula", "graph", "2d-text", "2d-anim")
 CHART_TYPES = ("lines", "points", "bars")
 
-CONCEPTS_CLAUDE_CODE_MODEL = "sonnet"
+CONCEPTS_CLAUDE_CODE_MODEL = "opus"
 CONCEPTS_API_MODEL = "claude-sonnet-5-5"
 
 PAGES_PER_BATCH = 5

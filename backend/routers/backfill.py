@@ -80,7 +80,7 @@ def backfill_summary():
 
 
 @router.post("/figures")
-def backfill_figures(caption_method: str = "ollama"):
+def backfill_figures(caption_method: str = "docling"):
     """Extract figures for papers that have a PDF on Drive but no figures yet."""
     from services.figure_extractor import extract_figures
     from services.drive import download_pdf

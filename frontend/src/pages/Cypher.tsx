@@ -732,7 +732,7 @@ export default function Cypher() {
       setQuery(res.query);
       textareaRef.current?.focus();
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "LiteLLM unavailable");
+      setError(e instanceof Error ? e.message : "AI assist unavailable");
     } finally {
       setAssisting(false);
     }
@@ -869,7 +869,7 @@ export default function Cypher() {
             </div>
           )}
 
-          {/* LiteLLM assist */}
+          {/* AI assist (Claude) */}
           <div className="flex gap-2 items-center">
             <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
               <svg className="w-4 h-4 text-violet-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -879,7 +879,7 @@ export default function Cypher() {
                 value={assistText}
                 onChange={(e) => setAssistText(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && runAssist()}
-                placeholder="Describe what you want in plain English… (LiteLLM)"
+                placeholder="Describe what you want in plain English… (Claude)"
                 className="flex-1 bg-transparent text-sm focus:outline-none placeholder-gray-400"
               />
             </div>

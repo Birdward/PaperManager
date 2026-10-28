@@ -23,7 +23,7 @@ import { PreviewPane, type Preview } from "../components/kchat/PreviewPane";
 import { citedPapers, splitSections } from "../components/kchat/sections";
 import "../components/kchat/kchat.css";
 import { useAppSettings } from "../contexts/SettingsContext";
-import { CHAT_MODEL_LABELS, useChatModels, type ChatModel } from "../lib/chatModels";
+import { CHAT_MODEL, CHAT_MODEL_LABEL } from "../lib/chatModels";
 import type {
   ChatConcept, ChatConceptsState, ContextPaper, Conversation, KnowledgeMessage, MessagePaper,
   StepKind, TokenTotals,
@@ -280,15 +280,11 @@ function Answer({ item, onPaper, onVisualise, onRepair }: {
 
 export default function KnowledgeChat() {
   const { settings } = useAppSettings();
-  const models = useChatModels();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [running, setRunning] = useState(false);
   const [status, setStatus] = useState("");
-  const [model, setModel] = useState<ChatModel>(
-    settings.knowledgeChatDefaultModel === "ollama" ? "litellm" : settings.knowledgeChatDefaultModel as ChatModel,
-  );
   const [useWeb, setUseWeb] = useState<boolean>(settings.knowledgeChatUseWeb);
   const [autoConcepts, setAutoConceptsState] = useState(readAuto);
   const [attached, setAttached] = useState<AttachedPaper[]>([]);
@@ -426,7 +422,7 @@ export default function KnowledgeChat() {
     let lost = false;
     try {
       for await (const ev of streamKnowledgeChat({
-        question, history, model, conversation_id: activeId ?? undefined, use_web: useWeb,
+        question, history, model: CHAT_MODEL, conversation_id: activeId ?? undefined, use_web: useWeb,
         paper_ids: attached.map((p) => p.id),
       }, ctl.signal)) {
         if (ev.type === "status") setStatus(ev.text);
@@ -559,7 +555,7 @@ export default function KnowledgeChat() {
                 {compacting ? "compacting…" : "compact"}
               </button>
             )}
-            <span className="kc-model-pill" title="Model of the next answer">{CHAT_MODEL_LABELS[model]}</span>
+            <span className="kc-model-pill" title="Model of the next answer">{CHAT_MODEL_LABEL}</span>
           </header>
           <ContextStrip totals={totals} papers={contextPapers} answerTokens={answerTokens} onPaper={openPaper} />
 
@@ -626,9 +622,6 @@ export default function KnowledgeChat() {
             onSend={send}
             onStop={stop}
             running={running}
-            models={models}
-            model={model}
-            onModel={setModel}
             useWeb={useWeb}
             onUseWeb={setUseWeb}
             autoConcepts={autoConcepts}

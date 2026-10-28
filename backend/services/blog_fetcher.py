@@ -390,7 +390,7 @@ def _format_markdown_ollama(markdown: str) -> str:
     if not markdown or not markdown.strip():
         return ""
     try:
-        from services.litellm_client import chat_completion
+        from services.litellm_client import chat_completion, litellm_configured
 
         prompt = (
             "You are a markdown editor. The text below is already in markdown format.\n"
@@ -401,7 +401,7 @@ def _format_markdown_ollama(markdown: str) -> str:
             "2. Fix any obviously merged paragraphs (add a blank line between them).\n"
             "3. Do NOT rewrite, summarise, add, or remove any content.\n"
             "4. Output ONLY the corrected markdown — no preamble, no explanation.\n\n"
-            f"Markdown:\n{markdown[:7000]}"
+            f"Markdown:\n{markdown[:7000 if litellm_configured() else 60_000]}"
         )
         out = chat_completion(messages=[{"role": "user", "content": prompt}])
         # Sanity-check: model output must be at least half the length of input

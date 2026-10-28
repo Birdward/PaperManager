@@ -308,7 +308,7 @@ export default function UploadConfirmModal({ file, meta, onConfirmed, onCancel, 
           isDefault ? undefined : summaryInstructions,
           debug,
           documentType !== "paper" ? documentType : undefined,
-          settings.autoExtractClaims ? settings.claimsModel : "",
+          settings.autoExtractClaims ? "claude" : "",  // "" saves no claims
           settings.generateEmbeddingsOnUpload,
           documentType === "paper" ? preprocessKey : undefined,
           documentType === "paper" ? analysisKey : undefined,

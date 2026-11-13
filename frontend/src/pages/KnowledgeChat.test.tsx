@@ -95,6 +95,24 @@ describe("KnowledgeChat page", () => {
     expect(screen.getByText("Read during answer")).toBeInTheDocument();
   });
 
+  it("keeps the last reported size between turns instead of dropping to the estimate", async () => {
+    const turn = (used: number) => events([
+      { type: "context", papers: [], token_totals: { system: 2000, papers: 20000, history: 0, question: 100, total: 22100, limit: 1_000_000 } },
+      { type: "conversation", conversation_id: "c1", user_message_id: "u1" },
+      { type: "token", text: "Answer." },
+      ...(used ? [{ type: "context_used" as const, tokens: used, window: 1_000_000, model: "claude-opus-5-5" }] : []),
+      { type: "done", conversation_id: "c1", message_id: "a1" },
+    ]);
+    api.streamKnowledgeChat.mockReturnValueOnce(turn(56_000)).mockReturnValueOnce(turn(0));
+    render(<MemoryRouter><KnowledgeChat /></MemoryRouter>);
+    ask("First question");
+    await screen.findByText("✦ Visualise");
+    expect(document.querySelector(".kc-context-num")!.textContent).toMatch(/^56\.0k \/ 1M/);
+    ask("Second question");  // its answer never reports a size
+    await waitFor(() => expect(screen.getAllByText("✦ Visualise")).toHaveLength(2));
+    expect(document.querySelector(".kc-context-num")!.textContent).toMatch(/^≈56\.0k \/ 1M/);
+  });
+
   it("opens a cited paper in the preview pane", async () => {
     api.streamKnowledgeChat.mockReturnValue(events([{ type: "token", text: ANSWER }, { type: "done", conversation_id: "c1", message_id: "a1" }]));
     render(<MemoryRouter><KnowledgeChat /></MemoryRouter>);

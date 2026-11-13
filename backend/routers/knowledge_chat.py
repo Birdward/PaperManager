@@ -20,13 +20,17 @@ from db.queries.conversations import (
     set_branch_label_if_empty, set_message_error,
 )
 from models.schemas import KnowledgeChatRequest, ConversationOut, MessageOut
-from services.ai import knowledge_chat_stream, estimate_tokens, summarize_paper, context_window_for
+from services.ai import knowledge_chat_stream, estimate_tokens, summarize_paper, context_window_for, carried_reads
+from db.queries.conversations import add_conversation_reads, get_conversation_reads
 from services.auth import get_current_user
 
 log = logging.getLogger(__name__)
 router = APIRouter(prefix="/knowledge-chat", tags=["knowledge-chat"], dependencies=[Depends(get_current_user)])
 
 # ── SSE helpers ────────────────────────────────────────────────────────────────
+
+# Library citations in answers: [Title](/paper/<uuid>).
+_PAPER_LINK = re.compile(r"/paper/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})")
 
 # A paper's note goes into Knowledge Chat context in full up to this length, then cut.
 _NOTE_INLINE_CHARS = 1500
@@ -310,7 +314,37 @@ def _stream(body: KnowledgeChatRequest) -> Generator[str, None, None]:
         rest = {k: v for k, v in papers_by_id.items() if k not in {p["id"] for p in attached}}
         papers_by_id = {p["id"]: p for p in attached} | rest
 
+    # Papers cited in earlier answers stay in context: the selection above runs afresh for every
+    # question and would otherwise drop them as the conversation moves on.
+    cited = list(dict.fromkeys(
+        pid for m in body.history if m.role == "assistant" for pid in _PAPER_LINK.findall(m.content)
+    ))
+    earlier_ids = [pid for pid in cited if pid not in papers_by_id][:20]
+    if earlier_ids:
+        with driver.session() as session:
+            earlier = [dict(r) for r in session.run(
+                "UNWIND $ids AS pid MATCH (p:Paper {id: pid}) "
+                "RETURN p.id AS id, p.title AS title, p.year AS year, p.abstract AS abstract, p.summary AS summary",
+                ids=earlier_ids,
+            )]
+        if earlier:
+            yield _sse({"type": "step", "kind": "attach", "description": "Keeping papers discussed earlier in this conversation",
+                        "cypher": None, "count": len(earlier),
+                        "papers": [{"id": p["id"], "title": p["title"], "year": p.get("year")} for p in earlier]})
+            for p in earlier:
+                papers_by_id[p["id"]] = p
+
     all_papers = list(papers_by_id.values())
+
+    # Earlier reads (full texts, notes) of this conversation, fetched again: each turn is a fresh
+    # model session that would otherwise only see the earlier questions and answers.
+    earlier_reads = get_conversation_reads(driver, body.conversation_id) if body.conversation_id else []
+    carried, carried_labels = carried_reads(earlier_reads, driver) if earlier_reads else ("", [])
+    if carried_labels:
+        yield _sse({"type": "step", "kind": "fulltext",
+                    "description": "Keeping what was read earlier: " + "; ".join(carried_labels),
+                    "cypher": None, "count": len(carried_labels)})
+    turn_reads: list[dict] = []
 
     # Step 3: compute token estimates
     sys_tokens = estimate_tokens(
@@ -320,6 +354,7 @@ def _stream(body: KnowledgeChatRequest) -> Generator[str, None, None]:
 
     history_tokens = sum(estimate_tokens(m.content) for m in body.history)
     question_tokens = estimate_tokens(body.question)
+    carried_tokens = estimate_tokens(carried) if carried else 0
 
     # Enrich papers with their notes + conversation summaries. Long notes are cut here and
     # highlights only counted, so context stays bounded however much the reader has written;
@@ -370,7 +405,7 @@ def _stream(body: KnowledgeChatRequest) -> Generator[str, None, None]:
         })
 
     papers_tokens = sum(pi["tokens"] for pi in paper_infos)
-    total_tokens = sys_tokens + papers_tokens + history_tokens + question_tokens
+    total_tokens = sys_tokens + papers_tokens + history_tokens + question_tokens + carried_tokens
 
     yield _sse({
         "type": "context",
@@ -380,6 +415,7 @@ def _stream(body: KnowledgeChatRequest) -> Generator[str, None, None]:
             "papers": papers_tokens,
             "history": history_tokens,
             "question": question_tokens,
+            "carried": carried_tokens,
             "total": total_tokens,
             "limit": context_window_for(body.model),
         },
@@ -409,6 +445,8 @@ def _stream(body: KnowledgeChatRequest) -> Generator[str, None, None]:
                 model=body.model,
                 use_web=body.use_web,
                 driver=driver,
+                carried=carried,
+                reads=turn_reads,
             ):
                 if event.get("type") == "token":
                     full_answer += event.get("text", "")
@@ -420,6 +458,10 @@ def _stream(body: KnowledgeChatRequest) -> Generator[str, None, None]:
             return
         # Step 6: save assistant message and emit done
         msg = add_message(driver, conv_id, "assistant", full_answer, paper_ids, estimate_tokens(full_answer))
+        try:
+            add_conversation_reads(driver, conv_id, turn_reads)
+        except Exception as exc:
+            log.warning("Could not save this turn's reads (non-fatal) | %s", exc)
         yield {"type": "done", "conversation_id": conv_id, "message_id": msg["id"]}
 
     # The producer starts now, before anything else is sent: from here on the

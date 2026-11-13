@@ -749,6 +749,44 @@ def execute_library_tool(name: str, args: dict[str, Any], driver: Any) -> tuple[
     return None
 
 
+# Characters of earlier reads carried into a turn (the newest first); Opus 5.5 has a 1M window.
+CARRIED_CHARS = 300_000
+
+
+def carried_reads(reads: list[dict[str, Any]], driver: Any) -> tuple[str, list[str]]:
+    """Re-run a conversation's earlier reads (full texts, notes) for the next turn's system prompt.
+
+    Each Knowledge Chat turn is a fresh model session that otherwise only sees the earlier
+    questions and answers, not what was read. Returns (text, short descriptions); the newest
+    reads win when they exceed CARRIED_CHARS.
+    """
+    parts: list[str] = []
+    labels: list[str] = []
+    used = 0
+    for r in reversed(reads):
+        try:
+            result = execute_library_tool(r["name"], dict(r.get("args") or {}, reason="carried over"), driver)
+        except Exception as exc:
+            log.warning("Carrying over a read failed | %s | %s", r, exc)
+            continue
+        if not result:
+            continue
+        step, content = result
+        block = f"\n\n### {step['description']}\n{content}"
+        if used + len(block) > CARRIED_CHARS:
+            continue
+        parts.append(block)
+        labels.append(step["description"])
+        used += len(block)
+    if not parts:
+        return "", []
+    head = ("\n\n## Material you already read earlier in this conversation\n"
+            "These are the results of your earlier load_full_text / read_my_notes calls in this "
+            "conversation, fetched again. Use them; call the tools again only for other papers, "
+            "pages or notes.")
+    return head + "".join(reversed(parts)), list(reversed(labels))
+
+
 def estimate_tokens(text: str) -> int:
     """Rough token estimate: ~4 chars per token."""
     return max(1, len(text) // 4)
@@ -761,8 +799,13 @@ def knowledge_chat_stream(
     model: str = "claude",
     use_web: bool = True,
     driver: Any = None,
+    carried: str = "",
+    reads: list[dict[str, Any]] | None = None,
 ):
     """Agentic generator for knowledge-chat with live Cypher tool access.
+
+    *carried* is material read earlier in the conversation (see carried_reads), added to the
+    system prompt; *reads* collects this turn's reading tool calls (Claude Code path).
 
     Yields event dicts consumed directly by the SSE router:
       {"type": "status",  "text": str}
@@ -796,8 +839,8 @@ def knowledge_chat_stream(
     if model == "claude-code":
         from services.claude_code_chat import knowledge_chat_claude_code
         papers_block = "\n\n".join(_paper_block(p) for p in papers)
-        system = _load_prompt("knowledge_chat_system.txt").replace("{papers_block}", papers_block)
-        yield from knowledge_chat_claude_code(system, history, question, driver, use_web)
+        system = _load_prompt("knowledge_chat_system.txt").replace("{papers_block}", papers_block) + carried
+        yield from knowledge_chat_claude_code(system, history, question, driver, use_web, reads)
         return
 
     # ── Web pre-search ────────────────────────────────────────────────────────

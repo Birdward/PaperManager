@@ -247,6 +247,7 @@ export interface TokenTotals {
   papers: number;
   history: number;
   question: number;
+  carried?: number;  // earlier reads of the conversation, included again
   total: number;
   limit: number;
 }

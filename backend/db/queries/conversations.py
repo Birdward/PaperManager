@@ -30,6 +30,31 @@ def create_conversation(driver: Driver, title: str) -> dict:
         return dict(result.single()["c"])
 
 
+def get_conversation_reads(driver: Driver, conv_id: str) -> list[dict]:
+    """The library reads (tool name + arguments) made earlier in a Knowledge Chat conversation."""
+    import json
+
+    with driver.session() as session:
+        row = session.run("MATCH (c:Conversation {id: $id}) RETURN c.reads_json AS r", id=conv_id).single()
+    try:
+        return json.loads(row["r"]) if row and row["r"] else []
+    except ValueError:
+        return []
+
+
+def add_conversation_reads(driver: Driver, conv_id: str, reads: list[dict]) -> None:
+    """Append *reads* to the conversation's, dropping exact repeats (newest kept last)."""
+    import json
+
+    if not reads:
+        return
+    merged = get_conversation_reads(driver, conv_id)
+    for r in reads:
+        merged = [m for m in merged if m != r] + [r]
+    with driver.session() as session:
+        session.run("MATCH (c:Conversation {id: $id}) SET c.reads_json = $r", id=conv_id, r=json.dumps(merged[-50:]))
+
+
 def update_conversation_timestamp(driver: Driver, conv_id: str) -> None:
     with driver.session() as session:
         session.run(
@@ -211,11 +236,13 @@ def fork_conversation(driver: Driver, conv_id: str, keep: int, kind: str = "stra
             """
             CREATE (c:Conversation {
                 id: $id, title: $title, created_at: $now, updated_at: $now,
-                compacted: $compacted, parent_id: $parent, fork_at: $at, fork_kind: $kind
+                compacted: $compacted, parent_id: $parent, fork_at: $at, fork_kind: $kind,
+                reads_json: $reads
             })
             """,
             id=new_id, title=parent_c.get("title") or "Untitled", now=now,
             compacted=bool(parent_c.get("compacted")), parent=conv_id, at=questions, kind=kind,
+            reads=parent_c.get("reads_json"),  # a branch keeps what the parent had read
         )
         for m in kept:
             props = {

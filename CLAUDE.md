@@ -219,6 +219,18 @@ After merging, check these, because new upstream code can silently bypass this f
   answer, Claude Code's real report arrives as a `context_used` SSE event (largest prompt
   including tool reads, window, model), and the bar switches to it, with a "Read during answer"
   segment. Upstream showed only the 200k estimate.
+- **Knowledge Chat memory across turns.** Each turn is a fresh Claude Code session that gets
+  the earlier questions and answers (`_prompt`) but not what was read. So:
+  - Each conversation stores its reading calls (`load_full_text` / `read_my_notes` arguments,
+    `Conversation.reads_json`; forks copy it). `ai.carried_reads` re-runs them into the next
+    turn's system prompt ("Material you already read earlier…", newest first, `CARRIED_CHARS`
+    300k), shown as a "Keeping what was read earlier" step and an "Earlier reads" segment in the
+    bar. Before this, follow-ups re-read the PDF or worked only from the earlier answer's summary.
+  - Papers cited in earlier answers (`/paper/<uuid>`) stay in context. The per-question
+    selection ("No scope given: … semantic search and recency", or @mentions) runs afresh
+    every turn.
+  - Between turns the bar keeps the last reported figure as "≈" (it used to drop to the lower
+    pre-answer estimate, which leaves out Claude Code's ~13k overhead and tool reads).
 - **Figure/table numbers** keep thesis/book styles ("3.1", "B.14"); upstream kept only the first
   integer.
 - **Backups:** `./backup.sh` stops Neo4j, writes a `neo4j-admin database dump` (about 0.4 MB;

@@ -219,14 +219,23 @@ def _drive(run: Callable[[Callable[[dict[str, Any]], None]], Awaitable[None]]) -
         yield item
 
 
+# Knowledge Chat tools whose results are worth carrying into later turns of a conversation.
+CARRIED_TOOLS = ("load_full_text", "read_my_notes")
+
+
 def knowledge_chat_claude_code(
     system: str,
     history: list[dict[str, Any]],
     question: str,
     driver: Any,
     use_web: bool,
+    reads: list[dict[str, Any]] | None = None,
 ) -> Generator[dict[str, Any], None, None]:
-    """Knowledge Chat on Claude Code: same events as ``knowledge_chat_stream``."""
+    """Knowledge Chat on Claude Code: same events as ``knowledge_chat_stream``.
+
+    *reads*, when given, collects the reading tool calls (full text, notes) so the conversation
+    can include them again next turn: each turn is a fresh Claude Code session.
+    """
     _require_available()
     from claude_agent_sdk import tool
     from services.ai import LIBRARY_TOOLS, execute_library_tool
@@ -236,6 +245,8 @@ def knowledge_chat_claude_code(
             @tool(spec["name"], spec["description"], spec["input_schema"])
             async def handler(args: dict[str, Any]) -> dict[str, Any]:
                 step, content = await asyncio.to_thread(execute_library_tool, spec["name"], args, driver)
+                if reads is not None and spec["name"] in CARRIED_TOOLS:
+                    reads.append({"name": spec["name"], "args": {k: v for k, v in args.items() if k != "reason"}})
                 emit(step)
                 return {"content": [{"type": "text", "text": content}]}
             return handler
